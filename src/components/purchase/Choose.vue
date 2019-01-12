@@ -64,7 +64,7 @@
                 >
                 </el-table-column>
                 <el-table-column
-                prop="handle_date"
+                prop="create_date"
                 label="创建时间">
                 </el-table-column>
                 <el-table-column
@@ -191,7 +191,7 @@ export default {
   },
   methods: {
     test(_row){
-      console.log(_row)
+     
     },
     ...mapActions('dict',['getNextHandlePeo','getReturnOrderType']),
     handleCurrentChange(val) {
@@ -236,6 +236,10 @@ export default {
     },
     //完成处理
     okToAdd() {
+      if(this.search.handle_id==''){
+        this.$message.error("请选择下一处理人！");
+        return;
+      }
       let flag=false;
       for(let i=0;i<this.toDoList.length;i++){
         if(this.toDoList[i].supplier_id==''){
@@ -261,7 +265,6 @@ export default {
         paramsType: 1,
         preData: obj
       }).then(item => {
-        console.log(item);
         if (item == 1) {
           this.$message({
             message: "处理成功！",

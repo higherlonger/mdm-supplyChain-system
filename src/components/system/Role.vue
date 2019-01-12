@@ -42,15 +42,7 @@
             label="名称"
             >
             </el-table-column>              
-            <el-table-column
-            prop="state_text"
-            label="状态"
-            >
-            <template slot-scope="scope">
-                <el-tag size="medium" v-if="scope.row.state==1">启用</el-tag>
-                <el-tag size="medium" v-else type="danger">停用</el-tag>
-            </template>
-            </el-table-column>
+            
             <el-table-column
             prop="remark"
             label="备注"
@@ -60,6 +52,16 @@
             prop="updatedate"
             label="修改时间"
             >
+            </el-table-column>
+            <el-table-column
+            prop="state_text"
+            label="状态"
+            width="100"
+            >
+            <template slot-scope="scope">
+                <el-tag size="medium" v-if="scope.row.state==1">启用</el-tag>
+                <el-tag size="medium" v-else type="danger">停用</el-tag>
+            </template>
             </el-table-column>
             <el-table-column label="操作" width="250">
                 <template slot-scope="scope">
@@ -87,7 +89,7 @@
         </el-table>
         <!-- 分页 -->
         <el-pagination
-        @current-change="handleCurrentChange"
+        @current-change="handleCurrentChange" 
         :page-size="10"
         class="pagination"
         background
@@ -99,10 +101,10 @@
     <app-dialog title="角色信息" :visible.sync="dialog.seeVisible" top=0 customClass='customClass'>
       <show-role :record-id="recordId"></show-role>
     </app-dialog>
-    <app-dialog title="修改信息" :visible.sync="dialog.editVisible">
+    <app-dialog title="修改信息" :visible.sync="dialog.editVisible" top=0 customClass='customClass'>
       <edit-role :record-id="recordId" @reloadEvent="reloadData"></edit-role>
     </app-dialog>
-    <app-dialog title="新增角色" :visible.sync="dialog.addVisible">
+    <app-dialog title="新增角色" :visible.sync="dialog.addVisible" top=0 customClass='customClass'>
       <add-role @reloadEvent="reloadData"></add-role>
     </app-dialog>
     

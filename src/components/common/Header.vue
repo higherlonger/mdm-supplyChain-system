@@ -17,6 +17,10 @@
                 </div>        
             </app-dropdown-menu>
         </div>
+        <!-- 弹窗 -->
+        <app-dialog title="个人设置" :visible.sync="dialog.setting">
+          <person-set @reloadEvent="reloadGetData"></person-set>
+        </app-dialog>
     </div>
 </template>
 
@@ -24,23 +28,47 @@
 import AppDropdownMenu from "./DropdownMenu.vue";
 import { getToken } from "../../assets/js/auth";
 import { mapState, mapActions } from "vuex";
+import AppDialog from "./AppDialog.vue";
+import PersonSet from "./PersonSet.vue";
+import {outLogin} from "../../api"
 export default {
   name: "app-header",
   data() {
     return {
-      username: "未登录"
+      username: "未登录",
+      dialog: {
+        setting: !1
+      }
     };
   },
   methods: {
-    // ...mapActions('app', ['createLogout']),
-    toPersonal() {},
-    logout() {}
+    ...mapActions('app', ['createLogout']),
+    toPersonal() {
+      this.dialog.setting = !0;
+    },
+    async logout() {
+      const response = await outLogin();
+      if (response.code == 1){
+          this.createLogout()
+          this.$router.push('/login')
+      } else {
+          this.$message.error(response.message)
+      }
+    },
+    reloadGetData(res) {
+        for (let attr in this.dialog) {
+          this.dialog[attr] = !1;
+        }
+      this.username = res;
+    }
   },
   computed: {
     ...mapState("app", ["loginInfo"])
   },
   components: {
-    AppDropdownMenu
+    AppDropdownMenu,
+    PersonSet,
+    AppDialog
   },
   created() {
     this.username = this.loginInfo.name || getToken();

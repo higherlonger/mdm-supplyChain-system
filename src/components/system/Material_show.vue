@@ -49,6 +49,9 @@
         <el-form-item label="到货周期" prop="security_time">
             <span class="form-record-show">{{ info.security_time }} 天</span>
         </el-form-item>
+        <el-form-item label="供应商" prop="supplierNames">
+            <span class="form-record-show">{{ info.supplierNames }}</span>
+        </el-form-item>
         <el-form-item label="备注" prop="remark">
             <span class="form-record-show">{{ info.remark }}</span>
         </el-form-item>

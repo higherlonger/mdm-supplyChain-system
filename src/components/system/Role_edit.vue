@@ -15,7 +15,7 @@
         </el-form-item> 
         <el-form-item label="备注" prop="remark">
             <el-input class="textarea leftItv"
-            type="text"
+            type="textarea"
             placeholder="请输入备注"
             v-model="infoList.remark">
             </el-input>
@@ -95,11 +95,15 @@ export default {
     },
     async okEdit() {
       try {
+        let treeAry=this.$refs.tree.getCheckedKeys();
+        if(treeAry.length==0){
+          treeAry=[]
+        }
         const response = await editRole({
           name: this.infoList.name,
           remark: this.infoList.remark,
           state: this.infoList.state,
-          menu_ids: this.$refs.tree.getCheckedKeys(),
+          menu_ids: treeAry,
           id: this.recordId
         });
         if(response.code==1){
@@ -108,6 +112,8 @@ export default {
                 type: 'success'
             });
             this.reloadData();
+        }else if(response.code==0){
+          this.$message.error('修改失败！');
         }
       } catch (error) {
         console.log(error);

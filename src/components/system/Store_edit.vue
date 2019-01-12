@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import {EditStoreInfo} from '../../api'
+import {EditStoreInfo,configQuickStore} from '../../api'
 import { mapState, mapActions } from "vuex";
 export default {
   name: "edit-group",
@@ -112,9 +112,24 @@ export default {
         }
     },
     async addData(){
-
+        try {
+            const response=await configQuickStore({
+                  ...this.infoList
+            })
+            if(response.code==1){
+                this.closePanle(); 
+                this.$message({
+                    message: '新增成功！',
+                    type: 'success'
+                });
+            }else{
+                this.$message.error('新增失败！');
+            }
+        } catch (error) {
+            console.log(error);
+        }
     },
-    resetForm(formName){
+    resetForm(formName){ 
         this.$refs[formName].resetFields();
         for(var attr in this.infoList){
             this.infoList[attr]=""

@@ -149,8 +149,8 @@ export default {
         handle_id: ""
       },
       toggle: true,
-      beginTime: "",
-      endTime: "",
+      beginTime: new Date(),
+      endTime: new Date(new Date().getTime() + 3*24*60*60*1000),
       total: 1,
       list: [],
       curPageIndex: 1,

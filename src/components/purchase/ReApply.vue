@@ -220,8 +220,11 @@
           </el-form-item>
           <el-form-item label="上传图片" prop="image">
               <el-upload
-                action="https://jsonplaceholder.typicode.com/posts/"
-                list-type="picture-card"
+                action="https://up-z2.qbox.me" 
+                list-type="picture-card" 
+                ref='upload'
+                :on-success="handleAvatarSuccess"
+                :data="postData"
                 :on-preview="handlePictureCardPreview"
                 :on-remove="handleRemove">
                 <i class="el-icon-plus"></i>
@@ -294,6 +297,7 @@ import {
   getApplyById,
   addReturnList,
   editSupp,
+  getScrapToken,
   addReturnListSec
 } from "../../api";
 import { getList, getListPage, addData } from "../../common";
@@ -305,7 +309,9 @@ export default {
       //图片
       dialogImageUrl: "",
       dialogVisible: false,
-      //
+      postData: {
+        token: ""
+      },
       search: {
         order_state: "",
         keyword: "",
@@ -351,11 +357,12 @@ export default {
         returnList: !1,
         goPre: !1,
         cancleHandle: !1,
-        detailVisible:!1
+        detailVisible: !1
       },
       returnListLength: "",
-      detail:{},
-      dataVal:[]
+      detail: {},
+      dataVal: [],
+      fileList: []
     };
   },
   computed: {
@@ -372,11 +379,18 @@ export default {
   methods: {
     /** 图片 */
     handleRemove(file, fileList) {
-      console.log(file, fileList);
+      for (let i = 0; i < this.fileList.length; i++) {
+        if (this.fileList[i].key == file.response.key) {
+          this.fileList.splice(i, 1);
+        }
+      }
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
       this.dialogVisible = true;
+    },
+    handleAvatarSuccess(res, file) {
+      this.fileList.push(res);
     },
     /**图片结束 */
     ...mapActions("dict", [
@@ -387,21 +401,21 @@ export default {
       "getReturnOrderType"
     ]),
     //查看订单详情
-    toDetail(_row){
-      this.detail=_row;
-      this.dataVal=_row.item.item;
-      for(let attr in this.visible){
-        this.visible[attr]=!1;
+    toDetail(_row) {
+      this.detail = _row;
+      this.dataVal = _row.item.item;
+      for (let attr in this.visible) {
+        this.visible[attr] = !1;
       }
-      this.visible.detailVisible=!0;
+      this.visible.detailVisible = !0;
     },
     //订单详情后退
-    detailPre(){
-      for(let attr in this.visible){
-        this.visible[attr]=!1;
+    detailPre() {
+      for (let attr in this.visible) {
+        this.visible[attr] = !1;
       }
-      this.visible.newVisible=!0;
-      this.visible.goPre=!0;
+      this.visible.newVisible = !0;
+      this.visible.goPre = !0;
     },
     quickNew() {
       this.visible.listVisible = !1;
@@ -454,6 +468,12 @@ export default {
               //过滤退货单信息
               this.returnOrderList = this.filterReturnOrderList(item.data);
               this.isShow = !this.isShow;
+              getListPage({
+                requestUrl: getScrapToken,
+                params: {}
+              }).then(item => {
+                this.postData.token = item.list;
+              });
             } else {
               this.$message.error("新增失败");
             }
@@ -484,32 +504,44 @@ export default {
     },
     //提交退货信息
     commitReturn(item, index) {
-      // this.$refs['item'].validate(valid => {
-      //   if (valid) {
+      console.log(this.returnListLength)
+      if(item.to_user_id==''){
+        this.$message.error('请选择下一处理人！');
+        return;
+      }else if(item.return_reason==''){
+        this.$message.error('请填写退货原因！');
+        return;
+      }else if(this.fileList.length==0){
+        this.$message.error('请上传图片！');
+        return;
+      }
+      let obj = {
+        ...item,
+        image: this.fileList
+      };
       addData({
         requestUrl: addReturnListSec,
         paramsType: 1,
-        preData: item,
+        preData: obj,
         returnType: 1
       }).then(item => {
         if (item.code == 1) {
-          this.$message({
-            message: "提交成功！",
-            type: "success"
-          });
+          
+          // this.$refs.upload.clearFiles();
           this.returnOrderList[index].isShow = false;
           this.returnListLength--;
           if (this.returnListLength <= 0) {
-            this.visible.listVisible = !0;
-            this.visible.returnList = !1;
+           for(let attr in this.visible){
+             this.visible[attr]=!1;
+           }
+           this.visible['listVisible']=!0;
           }
+           this.$message({
+            message: "提交成功！",
+            type: "success"
+          });
         }
       });
-      //   } else {
-      //     console.log("error submit!!");
-      //     return false;
-      //   }
-      // });
     },
     getCheckedNodes() {
       this.tableData = [];
@@ -518,13 +550,10 @@ export default {
         return !item.children;
       });
       this.filterData(filterVal);
-      // this.tableData=filterVal
     },
     filterData(newVal) {
-      console.log(newVal)
       for (let i = 0; i < newVal.length; i++) {
         if (!newVal[i].material_data.batch_num) {
-          // console.log(1)
           newVal[i].material_data.current_quantity = 1;
           newVal[i].material_data.stock_id = newVal[i].id;
           newVal[i].material_data.batch_num = newVal[i].batch_num;

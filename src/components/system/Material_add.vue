@@ -11,7 +11,7 @@
             type="text"
             placeholder="请输入原材料名称"
             v-model="infoList.name">
-            </el-input>
+            </el-input> 
         </el-form-item>
         <el-form-item label="编码" prop="num">
             <el-input class="textarea leftItv"
@@ -63,7 +63,7 @@
             <el-input class="textarea tihuo "
             type="text"
             placeholder="请输入规格"
-            v-model="infoList.brand">
+            v-model="infoList.attribute">
             </el-input>
         </el-form-item>
         <el-form-item label="成本价" prop="cost_price" style="clear:left;float:left;" class="leftFl">
@@ -157,11 +157,20 @@ export default {
         catalog_id: ""
       },
       rules: {
-        province: [
-          { required: true, message: "请选择省份", trigger: "change" }
+        catalog_id: [
+          { required: true, message: "请选择所属分类", trigger: "change" }
         ],
-        city: [{ required: true, message: "请选择城市", trigger: "change" }],
-        address: [{ required: true, message: "请输入地址", trigger: "blur" }]
+        name: [{ required: true, message: "请输入原材料名称", trigger: "blur" }],
+        num: [{ required: true, message: "请输入编码", trigger: "blur" }],
+        min2mid_num: [{ required: true, message: "请选择装箱单位", trigger: "change" }],
+        order_type_text: [{ required: true, message: "请选择订单类型", trigger: "change" }],
+        type: [{ required: true, message: "请选择采购类型", trigger: "change" }],
+        out_unit:[{ required: true, message: "请选择提货单位", trigger: "change" }],
+        cost_price:[{ required: true, message: "请输入成本价", trigger: "blur" }],
+        purchase_price:[{ required: true, message: "请输入采购价", trigger: "blur" }],
+        storage_condition_text:[{ required: true, message: "请选择存储条件", trigger: "change" }],
+        security_time:[{ required: true, message: "请输入到货周期", trigger: "blur" }],
+        shelf_life_num:[{ required: true, message: "请输入保质期", trigger: "blur" }]
       }
     };
   },

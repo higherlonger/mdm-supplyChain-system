@@ -56,7 +56,7 @@ export default {
         this.createLoginInfo({ 
           id: response.sessionId,
           name: response.nickname
-        });
+        }); 
         this.$router.push({ path: "/" });
       } else {
         this.$message.error(response.message);

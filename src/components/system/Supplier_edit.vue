@@ -10,18 +10,18 @@
         </el-form-item>
         <el-form-item label="联系人手机" prop="phone">
             <el-input class="textarea leftItv"
-            type="text"
+            type="number"
             placeholder="请输入联系人手机号"
             v-model="infoList.phone">
             </el-input>
         </el-form-item>
         <el-form-item label="省份" prop="province">
-            <el-select v-model="infoList.province" clearable placeholder="请选省份" class="leftItv">
+            <el-select v-model="infoList.province" placeholder="请选省份" class="leftItv">
                 <el-option v-for="item in provinceList" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
         </el-form-item>
         <el-form-item label="城市" prop="city">
-            <el-select v-model="infoList.city" clearable placeholder="请选城市" class="leftItv">
+            <el-select v-model="infoList.city" placeholder="请选城市" class="leftItv">
                 <el-option v-for="item in cityList" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
         </el-form-item>   
@@ -57,8 +57,7 @@ export default {
       infoList: [],
       rules: {
         linkman: [{ required: true, message: "请输入联系人姓名", trigger: "blur" }],
-        phone: [{ required: true, message: "请输入联系人手机号", trigger: "blur" },
-      { type: 'number', message: '手机号必须为数字值'}],
+        phone: [{ required: true, message: "请输入联系人手机号", trigger: "blur" }],
         province: [
           { required: true, message: "请选择省份", trigger: "change" }
         ],

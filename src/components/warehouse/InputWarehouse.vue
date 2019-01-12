@@ -433,7 +433,7 @@ export default {
       }).then(item => {
         if (item == 1) {
           this.$message({
-            message: "新增成功！",
+            message: "入库成功！",
             type: "success"
           });
           this.view.listView = !this.view.listView;
@@ -448,7 +448,7 @@ export default {
             this.list = item.list;
           });
         } else {
-          this.$message.error("新增失败");
+          this.$message.error("入库失败");
         }
       });
     },

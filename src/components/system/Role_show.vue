@@ -15,8 +15,7 @@
         </el-form-item>
         <el-form-item label="权限" prop="remark">
             <el-tree
-            :data="limitList"
-            show-checkbox
+            :data="form.menu_list"
             default-expand-all
             node-key="id"
             ref="tree"
@@ -54,7 +53,7 @@ export default {
         const response = await getDetailById({ id: this.recordId });
         if (response.code == 1) {
           this.form = response.data;
-          this.setCheckedKeys(response.data.menu_ids)
+          // this.setCheckedKeys(response.data.menu_ids)
         }
       } catch (error) {
         console.log(error);

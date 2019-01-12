@@ -5,7 +5,7 @@
             <el-input class="textarea leftItv"
             type="text"
             placeholder="请输入原材料数量"
-            v-model="infoList.quantity">
+            v-model="infoList.quantity">  
             </el-input>
         </el-form-item>
         <el-form-item label="原料批号" prop="name">
@@ -16,7 +16,7 @@
             </el-input>
         </el-form-item>
         <el-form-item label="所属分类" prop="catalog_id">
-            <el-select v-model="infoList.catalog_id" filterable  placeholder="请选城市" class="leftItv">
+            <el-select v-model="infoList.catalog_id" filterable  placeholder="请选分类" class="leftItv">
                 <el-option v-for="item in secondTree" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
         </el-form-item> 
@@ -39,11 +39,11 @@
                 <el-input-number class="nub" v-model="infoList.min2mid_num" controls-position="right" :min="0"></el-input-number>
             </template>
             <el-select v-model="infoList.min_unit"  placeholder="单位" class="danwei leftInval">
-                <el-option v-for="item in cityList" :key="item.value" :label="item.name" :value="item.value"></el-option>
+                <el-option v-for="item in materialUnit" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
             <span style="margin:0px 5px;font-size:20px;">/</span>
             <el-select v-model="infoList.mid_unit"  placeholder="单位" class="danwei">
-                <el-option v-for="item in cityList" :key="item.value" :label="item.name" :value="item.value"></el-option>
+                <el-option v-for="item in materialUnit" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
         </el-form-item>
         <el-form-item label="装箱单位" prop="mid2max_num" style="clear:left">
@@ -51,11 +51,11 @@
                 <el-input-number class="nub" v-model="infoList.mid2max_num" controls-position="right" :min="0"></el-input-number>
             </template>
             <el-select v-model="infoList.mid_unit"   placeholder="单位" class="danwei leftInval">
-                <el-option v-for="item in cityList" :key="item.value" :label="item.name" :value="item.value"></el-option>
+                <el-option v-for="item in materialUnit" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
             <span style="margin:0px 5px;font-size:20px;">/</span>
             <el-select v-model="infoList.max_unit"   placeholder="单位" class="danwei">
-                <el-option v-for="item in cityList" :key="item.value" :label="item.name" :value="item.value"></el-option>
+                <el-option v-for="item in materialUnit" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
         </el-form-item>
         <el-form-item label="订单类型" prop="order_type_text" class="leftFl">
@@ -69,14 +69,16 @@
             </el-select>
         </el-form-item>
         <el-form-item label="提货单位" prop="out_unit" class="leftFl">
-            <el-select v-model="infoList.out_unit" disabled  placeholder="单位" class="tihuo">
-                <el-option v-for="item in cityList" :key="item.value" :label="item.name" :value="item.value"></el-option>
+            <el-select v-model="infoList.out_unit"  placeholder="单位" class="tihuo">
+                <el-option v-for="item in getProductUnit" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
         </el-form-item>
         <el-form-item label="规格" prop="attribute" class="rightFl">
-            <el-select v-model="infoList.attribute"   placeholder="单位" class="tihuo">
-                <el-option v-for="item in secondTree" :key="item.value" :label="item.name" :value="item.value"></el-option>
-            </el-select>
+            <el-input class="textarea tihuo "
+            type="text"
+            placeholder="请输入规格"
+            v-model="infoList.attribute">
+            </el-input>
         </el-form-item>
         <el-form-item label="成本价" prop="cost_price" style="clear:left;float:left;" class="leftFl">
             <template>
@@ -118,7 +120,7 @@
                 <el-input-number v-model="infoList.shelf_life_num" controls-position="right" :min="0"></el-input-number>
             </template>
             <el-select v-model="infoList.shelf_life_unit_text" placeholder="单位" class="danwei leftInval">
-                <el-option v-for="item in cityList" :key="item.value" :label="item.name" :value="item.value"></el-option>
+                <el-option v-for="item in lifeUnit" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
         </el-form-item> 
         <el-form-item label="备注" prop="remark">
@@ -183,9 +185,41 @@ export default {
       "secondTree",
       "storeCondition",
       "orderType",
-      "purchase"
+      "purchase",
+      "lifeUnit",
+      "materialUnit"
     ]),
-    ...mapState("stateChange", ["btnLoading"])
+    ...mapState("stateChange", ["btnLoading"]),
+    getProductUnit() {
+      let ary = [];
+      this.infoList.out_unit = "";
+      for (let i = 0; i < this.materialUnit.length; i++) {
+        if (this.materialUnit[i].value == this.infoList.min_unit) {
+          ary.push({
+            name: this.materialUnit[i].name,
+            value: this.materialUnit[i].value
+          });
+        }
+      }
+      for (let i = 0; i < this.materialUnit.length; i++) {
+        if (this.materialUnit[i].value == this.infoList.mid_unit) {
+          ary.push({
+            name: this.materialUnit[i].name,
+            value: this.materialUnit[i].value
+          });
+        }
+      }
+      for (let i = 0; i < this.materialUnit.length; i++) {
+        if (this.materialUnit[i].value == this.infoList.max_unit) {
+          ary.push({
+            name: this.materialUnit[i].name,
+            value: this.materialUnit[i].value
+          });
+        }
+      }
+      this.uniqueArray(ary);
+      return this.uniqueArray(ary);
+    }
   },
   methods: {
     ...mapActions("dict", [
@@ -194,11 +228,34 @@ export default {
       "getSecondTree",
       "getStoreCondition",
       "getOrderType",
-      "getPurchase"
+      "getPurchase",
+      "getLifeUnit",
+      "getMaterialUnit"
     ]),
+    //数组json去重
+    uniqueArray(paylist) {
+     if(paylist[0]==undefined){
+         paylist[0]=''
+     }
+      var payArr = [paylist[0]];
+      for (var i = 1; i < paylist.length; i++) {
+        var payItem = paylist[i];
+        var repeat = false;
+        for (var j = 0; j < payArr.length; j++) {
+          if (payItem.value == payArr[j].value) {
+            repeat = true;
+            break;
+          }
+        }
+        if (!repeat) {
+          payArr.push(payItem);
+        }
+      }
+      return payArr;
+    },
     submitForm(formName) {
       let obj = {
-         material_data:this.infoList,
+        material_data: this.infoList,
         quantity: this.infoList.quantity,
         batch_num: this.infoList.batch_num
       };
@@ -215,7 +272,7 @@ export default {
                 this.$message({
                   message: "新增成功！",
                   type: "success"
-                }); 
+                });
               } else {
                 this.$message.error("新增失败");
               }
@@ -240,6 +297,8 @@ export default {
     this.getStoreCondition();
     this.getOrderType();
     this.getPurchase();
+    this.getLifeUnit();
+    this.getMaterialUnit();
   }
 };
 </script>

@@ -85,19 +85,18 @@
             :data="tableData"
             border
             ref="table"
-            :default-sort = "{prop: 'num'}"
             >
-            <el-table-column
-                prop="name"
-                sortable
-                label="原料名称"
-                >
-            </el-table-column>
             <el-table-column
                 prop="num"
                 label="编码"
                 width="100"
                >
+            </el-table-column>
+            <el-table-column
+                prop="name"
+                sortable
+                label="原料名称"
+                >
             </el-table-column>
             <el-table-column
                 prop="security_time"
@@ -106,8 +105,14 @@
                 >
             </el-table-column>
             <el-table-column
-                prop="order_type"
+                prop="order_type_text"
                 label="订单类型"
+                width="100"
+                >
+            </el-table-column>
+            <el-table-column
+                prop="storage_condition_text"
+                label="库存类型"
                 width="100"
                 >
             </el-table-column>
@@ -240,7 +245,7 @@ export default {
         for (let attr in this.dialog) {
           this.dialog[attr] = !1;
         }
-        this.handleNodeClick();
+        this.getMaterial();
       }
     },
     stopMater(_id, state) {

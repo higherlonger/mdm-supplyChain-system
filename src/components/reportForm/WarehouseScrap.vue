@@ -4,28 +4,27 @@
     <nav class="app-location-wrapper">
         <el-breadcrumb separator="/" class="fl">
             <el-breadcrumb-item :to="{ path: '/sys_setting' }">报表管理</el-breadcrumb-item>
-            <el-breadcrumb-item>物流报表</el-breadcrumb-item>
-            <el-breadcrumb-item>原料废弃</el-breadcrumb-item>
+            <el-breadcrumb-item>仓库统计</el-breadcrumb-item>
+            <el-breadcrumb-item>仓库废弃</el-breadcrumb-item>
         </el-breadcrumb>
         <el-button class="fr" size="small" icon="el-icon-download" type="primary" plain 
             @click="outReport">导出报表</el-button>
     </nav>
 
-    <div style="background-color:#fff;"> 
+    <div style="background-color:#fff;">  
       <!-- 搜索条件 -->
       <div class="component-top">
-          <div class="search-title fl">选择原料：</div>
+          <div class="search-title fl">选择门店：</div>
               <el-select 
                   class="fl"
-                  size="small" 
-                  filterable  
+                  size="small"  
                   clearable
-                  v-model="search.material_id"
+                  v-model="search.store_id"
                   @change="searchHandle"
                   style="width:160px;margin-right:10px;"
                   >
                   <el-option
-                  v-for="item in materialList"
+                  v-for="item in storeList"
                   :key="item.value"
                   :label="item.name"
                   :value="item.value">
@@ -84,7 +83,7 @@
 </template>
 
 <script>
-import { getMaterialScrap,getMaterialScrapExp } from "../../api";
+import { getWarehouseScrap,getWarehouseScrapExp } from "../../api";
 import { getList, addData, getListPage } from "../../common";
 import AppDialog from "../common/AppDialog.vue";
 import { mapState, mapActions } from "vuex";
@@ -93,31 +92,33 @@ export default {
   data() {
     return {
       search: {
-        beginTime: "",
-        endTime: ""
+        beginTime: "", 
+        endTime: "",
+        store_id:""
       },
       thead: [],
-      tbody: [], 
+      tbody: [],
       title: []
     };
-  },
+  }, 
   components: {
     AppDialog
   },
   computed: {
     ...mapState("stateChange", ["btnLoading"]),
-    ...mapState('dict',["materialList"])
+    ...mapState('dict',["storeList"])
   },
   methods: {
-    ...mapActions('dict',["getMaterialList"]),
+    ...mapActions('dict',["getStoreList"]),
     //根据条件搜素
     searchHandle(val) {
       if (val == "all") {
         this.search.beginTime = "";
         this.search.endTime = "";
+        this.search.store_id="";
       }
       getListPage({
-        requestUrl: getMaterialScrap,
+        requestUrl: getWarehouseScrap,
         params: { ...this.search }
       }).then(item => {
         this.thead = item.list.thead_list;
@@ -128,7 +129,7 @@ export default {
     //导出报表
     outReport() {
       addData({
-        requestUrl: getMaterialScrapExp,
+        requestUrl: getWarehouseScrapExp,
         params: { beginTime:this.search.beginTime,endTime:this.search.endTime },
         paramsType:2
       }).then(item=>{ 
@@ -141,8 +142,8 @@ export default {
     }
   },
   created() {
-    this.getMaterialList()
-   
+    this.getStoreList();
+    
   }
 };
 </script>

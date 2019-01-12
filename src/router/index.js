@@ -58,6 +58,12 @@ const MaterialScrap= () => import('../components/reportForm/MaterialScrap.vue')
 const SupplierReport= () => import('../components/reportForm/SupplySum.vue')
 const MaterialReport= () => import('../components/reportForm/MaterialSum.vue')
 const inputWarehouse= () => import('../components/warehouse/InputWarehouse.vue')
+const WarehouseScrap= () => import('../components/logistics/WarehouseScrap.vue')
+const WarehouseOrderScrap= () => import('../components/warehouse/Scrap.vue')
+const LogWarehouseMaterialScrap= () => import('../components/reportForm/LogWarehouseMaterialScrap.vue')
+const LogWarehouseScrap= () => import('../components/reportForm/LogWarehouseScrap.vue')
+const WareWarehouseScrap= () => import('../components/reportForm/WarehouseScrap.vue')
+
 
 export default new Router({
   routes: [{
@@ -129,7 +135,7 @@ export default new Router({
       path: '/s_store',
       name: '店长管理',
       component: Layout,
-      redirect: '/s_store/product_order',
+      redirect: '/s_store/order',
       children:[{
         path: 'order',
         name: '订货单',
@@ -204,6 +210,10 @@ export default new Router({
         path: 'store_reconciliation',
         name: '门店对账',
         component: Home
+      },{
+        path: 'Warehouse_scrap',
+        name: '仓库废弃',
+        component: WarehouseScrap
       }]
     },{
       path:'/warehouse',
@@ -217,7 +227,7 @@ export default new Router({
       },{
         path:'scrap',
         name:'废弃单',
-        component: Home
+        component: WarehouseOrderScrap
       },{
         path:'stock',
         name:'库存',
@@ -327,13 +337,25 @@ export default new Router({
         name:'原料废弃',
         component:MaterialScrap
       },{
-        path:'purchase_supplier_report',
+        path:'LWareHouseScrap',
+        name:'仓库废弃',
+        component:LogWarehouseScrap
+      },{
+        path:'LWHMScrap',
+        name:'仓库原料废弃',
+        component:LogWarehouseMaterialScrap
+      },{
+        path:'PurchaseSupplier_report',
         name:'供应商统计',
         component:SupplierReport
       },{
-        path:'purchase_material_report',
+        path:'Purchase_material_report',
         name:'原料统计',
         component:MaterialReport
+      },{
+        path:'WHScrap',
+        name:'仓库废弃',
+        component:WareWarehouseScrap
       }]
     }
   ]

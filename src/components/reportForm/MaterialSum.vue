@@ -109,7 +109,7 @@ export default {
     //导出报表
     outReport() {
       addData({
-        requestUrl: getOrderStatisticsExp,
+        requestUrl: getMaterialSumExp,
         params: { beginTime:this.search.beginTime,endTime:this.search.endTime },
         paramsType:2
       }).then(item=>{ 

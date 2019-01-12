@@ -100,66 +100,22 @@
               prop="num"
               label="订单编号"
               >
-              <template slot-scope="scope">
-                  <span :style="{color: scope.row.store_color}">{{ scope.row.num }}</span>
-              </template>
               </el-table-column>
               <el-table-column
-              prop="store_name"
-              label="门店名称"
+              prop="warehourse_from_name"
+              label="移出仓库"
               >
-              <template slot-scope="scope">
-                  <span :style="{color: scope.row.store_color}">{{ scope.row.store_name }}</span>
-              </template>
               </el-table-column>
               <el-table-column
-              prop="order_date"
-              label="订货日期"
+              prop="warehourse_to_name"
+              label="移入仓库"
               >
-              <template slot-scope="scope">
-                  <span :style="{color: scope.row.store_color}">{{ scope.row.order_date }}</span>
-              </template>
-              </el-table-column>
-              <el-table-column
-              prop="arrive_date"
-              label="到货日期"
-              >
-              <template slot-scope="scope">
-                  <span :style="{color: scope.row.store_color}">{{ scope.row.arrive_date }}</span>
-              </template>
               </el-table-column>
               <el-table-column
               prop="create_date"
-              label="提交日期"
+              label="移库日期"
               >
-              <template slot-scope="scope">
-                  <span :style="{color: scope.row.store_color}">{{ scope.row.create_date }}</span>
-              </template>
               </el-table-column>
-              <el-table-column
-              prop="order_type_text"
-              label="订单类型"
-              >
-              <template slot-scope="scope">
-                  <span :style="{color: scope.row.store_color}">{{ scope.row.order_type_text }}</span>
-              </template>
-              </el-table-column>
-              <el-table-column
-              prop="order_state_text"
-              label="状态"
-              width="100">
-              <template slot-scope="scope">
-                  <el-tag size="medium" :type=scope.row.order_state_color>{{scope.row.order_state_text}}</el-tag>
-              </template>
-              </el-table-column>
-              <el-table-column label="操作" width="150">
-                  <template slot-scope="scope">
-                      <el-button 
-                      size="mini"
-                      @click="recordHandle(scope.row,'seeVisible')">查看</el-button>
-                    
-                  </template>
-                  </el-table-column>
           </el-table>
           <!-- 分页 -->
           <el-pagination
@@ -341,13 +297,17 @@
               prop="batch_num"
               label="批号">
           </el-table-column>
+          <el-table-column 
+              prop="stock_quantity"
+              label="库存数量">
+          </el-table-column>
           <el-table-column
               prop="order_quantity"
               label="数量"
               width="150"
               >
               <template slot-scope="scope">
-                  <el-input-number v-model="scope.row.order_quantity" :min="1" size="small"></el-input-number>
+                  <el-input-number v-model="scope.row.order_quantity" :min="1" :max="scope.row.stock_quantity" size="small"></el-input-number>
               </template>
           </el-table-column>
           <el-table-column 
@@ -502,7 +462,7 @@ export default {
         this.search.warehourse_from_id = "";
         this.search.out_date_begin = "";
         this.search.out_date_end = "";
-        this.storage_condition = "";
+        this.search.storage_condition = "";
       }
       getList({
         requestUrl: getMoveOrderList,

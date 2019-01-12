@@ -271,6 +271,9 @@ export default {
                 case 5:
                     this.titText=`订单流程（当前为"<span style='color:#409EFF'>采购入库</span>"阶段）`;
                     break;
+                case 6:
+                    this.titText=`订单流程（<span style='color:green'>订单已完成</span>）`;
+                    break;
                 default:
                     this.titText=`订单流程（<span style='color:red'>订单已关闭</span>）`;
                     break;
@@ -280,7 +283,6 @@ export default {
     },
     //采购入库阶段的模板
     fiveText(val){
-        console.log(val)
         let text="";
         for(let i=0;i<val.length;i++){
             text=text+`<div>
@@ -291,13 +293,6 @@ export default {
             }
             text=text+"</div></br>"
         }
-        // this.text.five=`
-        //     <div>
-        //         <b>第1次入库</b>&nbsp;&nbsp;&nbsp;&nbsp;处理人：周颖&nbsp;&nbsp;&nbsp;&nbsp;处理时间：2018-01-01
-        //         <p>备注：56789</p>
-        //         <p>1、原料编号：1001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;库存批号：1001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名称：三黄鸡单面&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数量：1000</p>
-        //     </div>
-        // `
         this.text.five=text;
     },
     //初始化模板

@@ -1,7 +1,7 @@
  <template>
 <div> 
     <!-- 导航栏 -->
-    <nav class="app-location-wrapper">
+    <nav class="app-location-wrapper"> 
         <el-breadcrumb separator="/" class="fl">
             <el-breadcrumb-item :to="{ path: '/sys_setting' }">物流管理</el-breadcrumb-item>
             <el-breadcrumb-item>物流管理</el-breadcrumb-item>
@@ -24,7 +24,23 @@
                   style="width:160px;margin-right:10px;"
                   >
                   <el-option
-                  v-for="item in orderStates"
+                  v-for="item in storeList" 
+                  :key="item.value"
+                  :label="item.name"
+                  :value="item.value">
+                  </el-option>
+              </el-select>
+          <div class="search-title fl">仓库：</div>
+              <el-select 
+                  class="fl"
+                  size="small" 
+                  clearable
+                  v-model="search.warehouse_id"
+                  @change="searchHandle"
+                  style="width:160px;margin-right:10px;"
+                  >
+                  <el-option
+                  v-for="item in wareHouse" 
                   :key="item.value"
                   :label="item.name"
                   :value="item.value">
@@ -50,7 +66,7 @@
                   style="width:160px;margin-right:10px;"
                   >
                   <el-option
-                  v-for="item in orderStates"
+                  v-for="item in outOrderList"
                   :key="item.value"
                   :label="item.name"
                   :value="item.value">
@@ -73,10 +89,18 @@
               style="width: 100%">
               <el-table-column
               prop="num"
-              label="订单编号" 
+              label="订单编号"
               >
               <template slot-scope="scope">
                 <span :style="{color: scope.row.store_color}">{{ scope.row.num }}</span>
+              </template>
+              </el-table-column>
+              <el-table-column
+              prop="warehouse_name"
+              label="仓库名称"
+              >
+              <template slot-scope="scope">
+                <span :style="{color: scope.row.store_color}">{{ scope.row.warehouse_name }}</span>
               </template>
               </el-table-column>
               <el-table-column
@@ -88,35 +112,11 @@
               </template>
               </el-table-column>
               <el-table-column
-              prop="order_date"
-              label="订货日期"
+              prop="out_date"
+              label="出库日期"
               >
               <template slot-scope="scope">
-                <span :style="{color: scope.row.store_color}">{{ scope.row.order_date }}</span>
-              </template>
-              </el-table-column>
-              <el-table-column
-              prop="arrive_date"
-              label="到货日期"
-              >
-              <template slot-scope="scope">
-                <span :style="{color: scope.row.store_color}">{{ scope.row.arrive_date }}</span>
-              </template>
-              </el-table-column>
-              <el-table-column
-              prop="create_date"
-              label="提交日期"
-              >
-              <template slot-scope="scope">
-                <span :style="{color: scope.row.store_color}">{{ scope.row.create_date }}</span>
-              </template>
-              </el-table-column>
-              <el-table-column
-              prop="order_type_text"
-              label="订单类型"
-              >
-              <template slot-scope="scope">
-                <span :style="{color: scope.row.store_color}">{{ scope.row.order_type_text }}</span>
+                <span :style="{color: scope.row.store_color}">{{ scope.row.out_date }}</span>
               </template>
               </el-table-column>
               <el-table-column
@@ -124,15 +124,18 @@
               label="状态"
               width="100">
               <template slot-scope="scope">
-                  <el-tag size="medium" :type=scope.row.order_state_color>{{scope.row.order_state_text}}</el-tag>
+                  <el-tag size="medium" :type=scope.row.state_color>{{scope.row.state_text}}</el-tag>
               </template>
               </el-table-column>
-              <el-table-column label="操作" width="150">
+              <el-table-column label="操作" width="200">
                   <template slot-scope="scope">
                       <el-button 
                       size="mini"
                       @click="recordHandle(scope.row,'seeVisible')">查看</el-button>
-                    
+                      <el-button 
+                      type="primary"
+                      size="mini"
+                      @click="print(scope.row)">打印</el-button>
                   </template>
                   </el-table-column>
           </el-table>
@@ -146,7 +149,7 @@
           :total="this.total">
           </el-pagination>
       </div>
-    </div>
+    </div> 
 
     <!-- 查看订货单详情 -->
     <div style="background-color:#fff;padding:10px 0" v-show="!isShow">
@@ -158,23 +161,14 @@
             <el-form-item label="门店名称" class="rightShow item">
                 <span class="form-record-show list">{{ detail.store_name }}</span>
             </el-form-item>
-            <el-form-item label="订货日期" class="leftShow item">
-                <span class="form-record-show list">{{ detail.order_date }}</span>
+            <el-form-item label="仓库名称" class="leftShow item">
+                <span class="form-record-show list">{{ detail.warehouse_name }}</span>
             </el-form-item>
-            <el-form-item label="到货日期" class="rightShow item">
-                <span class="form-record-show list">{{ detail.arrive_date }}</span>
+            <el-form-item label="出库日期" class="rightShow item">
+                <span class="form-record-show list">{{ detail.out_date }}</span>
             </el-form-item>
-            <el-form-item label="提交日期" class="leftShow item">
-                <span class="form-record-show list">{{ detail.create_date }}</span>
-            </el-form-item>
-            <el-form-item label="订单类型" class="rightShow item">
-                <span class="form-record-show list">{{ detail.order_type_text }}</span>
-            </el-form-item>
-            <el-form-item label="订单状态" class="leftShow item">
-                <span class="form-record-show list">{{ detail.order_state_text }}</span>
-            </el-form-item>
-            <el-form-item label="撤销原因" class="rightShow remark">
-                <span class="form-record-show list">{{ detail.close_reason }}</span>
+            <el-form-item label="状态" class="leftShow item">
+                <span class="form-record-show list">{{ detail.state_text }}</span>
             </el-form-item>
         </el-form>
         <!-- 采购项信息 -->
@@ -199,11 +193,11 @@
             label="门店采购价">
             </el-table-column>
             <el-table-column 
-            prop="order_quantity"
-            label="订货数量">
+            prop="out_unit_quantity"
+            label="出库数量"> 
             </el-table-column>
             <el-table-column 
-            prop="unit"
+            prop="out_unit"
             label="单位">
             </el-table-column>
             <el-table-column 
@@ -218,7 +212,7 @@
 </template>
 
 <script>
-import { getCommodityList, discardReturnOrder, agreeOrder } from "../../api";
+import { getAllStore, discardReturnOrder, agreeOrder } from "../../api";
 import { getList, addData } from "../../common";
 import AppDialog from "../common/AppDialog.vue";
 import { mapState, mapActions } from "vuex";
@@ -229,7 +223,8 @@ export default {
       search: {
         state: "",
         num: "",
-        store_id: ""
+        store_id: "",
+        warehouse_id:""
       },
       detail: {},
       total: 1,
@@ -246,15 +241,15 @@ export default {
   },
   computed: {
     ...mapState("stateChange", ["btnLoading"]),
-    ...mapState("dict", ["orderStates"])
+    ...mapState("dict", ["outOrderList","storeList","wareHouse"])
   },
   methods: {
-    ...mapActions("dict", ["getOrderStates"]),
+    ...mapActions("dict", ["getOutOrderList","getStoreList","getWareHouse"]),
     handleCurrentChange(val) {
       this.curPageIndex = val;
       getList({
         currPage: this.curPageIndex,
-        requestUrl: getCommodityList,
+        requestUrl: getAllStore,
         params: { ...this.search, pageSize: this.pageSize,user_id:'5' }
       }).then(item => {
         this.total = item.total;
@@ -283,7 +278,7 @@ export default {
               type: "success"
             });
             getList({
-              requestUrl: getCommodityList,
+              requestUrl: getAllStore,
               params: { ...this.search, pageSize: this.pageSize,user_id:'5' }
             }).then(item => {
               this.total = item.total;
@@ -304,7 +299,7 @@ export default {
           this.dialog[attr] = !1;
         }
         getList({
-          requestUrl: getCommodityList,
+          requestUrl: getAllStore,
           params: { ...this.search, pageSize: this.pageSize,user_id:'5' }
         }).then(item => {
           this.list = item;
@@ -314,11 +309,13 @@ export default {
     //根据条件搜素
     searchHandle(val) {
       if (val == "all") {
-        this.search.keyword = "";
+        this.search.num = "";
         this.search.state = "";
+        this.search.warehouse_id="";
+        this.search.store_id="";
       }
       getList({
-        requestUrl: getCommodityList,
+        requestUrl: getAllStore,
         params: { ...this.search, pageSize: this.pageSize ,user_id:'5'}
       }).then(item => {
         this.total = item.total;
@@ -331,10 +328,12 @@ export default {
     }
   },
   created() {
-    this.getOrderStates();
+    this.getOutOrderList(); 
+    this.getStoreList();
+    this.getWareHouse();
     //获取列表
     getList({
-      requestUrl: getCommodityList,
+      requestUrl: getAllStore,
       params: { ...this.search, pageSize: this.pageSize,user_id:'6' }
     }).then(item => {
       this.total = item.total;

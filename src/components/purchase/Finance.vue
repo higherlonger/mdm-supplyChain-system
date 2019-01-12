@@ -10,7 +10,7 @@
         <el-button class="fr" size="small" icon="el-icon-success" type="success" plain v-show="!isShow"
             @click="toDo">通过</el-button>
         <el-button class="fr" size="small" icon="el-icon-warning" type="danger" plain v-show="!isShow" style="margin-right:10px"
-            @click="noToAdd">拒绝</el-button>
+            @click="noToAdd(1,0)">拒绝</el-button>
         <el-button class="fr" size="small" icon="el-icon-close"  plain v-show="!isShow" 
             @click="cancel">取消</el-button>
     </nav> 
@@ -68,7 +68,7 @@
                     <el-button
                     size="mini"
                     type="danger"
-                    @click="noToAdd(scope.row)">拒绝</el-button>
+                    @click="noToAdd(scope.row,1)">拒绝</el-button>
                 </template>
             </el-table-column>
           </el-table>
@@ -179,7 +179,7 @@ export default {
       search: {
         keyword: ""
       },
-      nextPeo:"boss_id",
+      nextPeo:"",
       total: 1,
       list: [],
       pageSize: 10,
@@ -215,6 +215,10 @@ export default {
     },
     //同意
     toDo() {
+      if(this.nextPeo==''){
+        this.$message.error("请选择下一处理人！");
+        return;
+      }
       let obj = { ...this.row,  to_user_id: this.nextPeo };
       addData({
         requestUrl: updateProcess,
@@ -244,13 +248,12 @@ export default {
       });
     },
     //拒绝
-    noToAdd(val) {
+    noToAdd(val,flag) {
       this.$prompt("请输入拒绝理由", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
       })
         .then(({ value }) => {
-          console.log(val)
           if (value == null||value=='') {
             this.$message.error("请输入拒绝原因");
           } else {
@@ -264,10 +267,10 @@ export default {
             }).then(item => {
               if (item == 1) {
                 this.$message({
-                  message: "处理成功！",
+                  message: "拒绝成功！",
                   type: "success"
                 });
-                if(!val){
+                if(flag==0){
                   this.isShow = !this.isShow;
                 }
                 getList({
@@ -282,7 +285,7 @@ export default {
                   this.list = item.list;
                 });
               } else {
-                this.$message.error("处理失败");
+                this.$message.error("拒绝失败");
               }
             });
           }

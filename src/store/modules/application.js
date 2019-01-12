@@ -28,6 +28,13 @@ const actions = {
       type: 'login',
       data: params
     })
+  },
+  createLogout ({ commit }){
+    removeToken()
+    commit({
+        type: 'outLogin',
+        data: null
+    })
   }
 }
 
@@ -38,6 +45,11 @@ const mutations = {
     state.navList = data
   },
   login(state, {
+    data
+  }) {
+    state.loginInfo = data
+  },
+  outLogin(state, {
     data
   }) {
     state.loginInfo = data

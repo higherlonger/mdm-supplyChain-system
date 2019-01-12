@@ -18,7 +18,8 @@ import {
   getAllStore,
   getMoveOrderTree,
   getMaterialList,
-  getInputWarehouseTree
+  getInputWarehouseTree,
+  getList
 } from '../../api'
 import common from '../../assets/js/common';
 const state = {
@@ -112,7 +113,13 @@ const state = {
   //原料下拉条列表
   materialList:[],
   //入库-树
-  inputWarehouseTree:[]
+  inputWarehouseTree:[],
+  //原料下拉条
+  materialListAry:[],
+  //商品下拉条
+  commodityListAry:[],
+  //出库单状态下拉条
+  outOrderList:[]
 }
 
 const actions = {
@@ -208,7 +215,9 @@ const actions = {
     commit
   }, params) {
     if (state.typeTree.length) return;
-    const response = await getCagTree();
+    const response = await getCagTree({
+      type: 'material'
+    });
     commit({
       type: 'typeTree',
       data: response.data.children || []
@@ -537,6 +546,43 @@ const actions = {
       type: 'inputWarehouseTree',
       data: response.data || []
     })
+  },
+  async getMaterialListMatAry({
+    state,
+    commit
+  }, params) {
+    const response = await getList({
+      type:'material'
+    });
+    commit({
+      type: 'materialListAry',
+      data: response.data || []
+    })
+  },
+  async getMaterialListComAry({
+    state,
+    commit
+  }, params) {
+    const response = await getList({
+      type:'product'
+    });
+    commit({
+      type: 'commodityListAry',
+      data: response.data || []
+    })
+  },
+  async getOutOrderList({
+    state,
+    commit
+  }, params) {
+    if (state.store_state.length) return;
+    const response = await dictionary({
+      dict: 'warehouse_out_order'
+    });
+    commit({
+      type: 'outOrderList',
+      data: response.data || []
+    })
   }
 }
 
@@ -720,6 +766,21 @@ const mutations = {
     data
   }){
     state.inputWarehouseTree=data;
+  },
+  materialListAry(state,{
+    data
+  }){
+    state.materialListAry=data;
+  },
+  commodityListAry(state,{
+    data
+  }){
+    state.commodityListAry=data;
+  },
+  outOrderList(state,{
+    data
+  }){
+    state.outOrderList=data;
   }
 }
 

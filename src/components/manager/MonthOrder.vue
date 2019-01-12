@@ -111,7 +111,7 @@ export default {
         keyword: "",
         handle_id: ""
       },
-      beginTime: "",
+      beginTime: new Date(),
       endTime: "",
       total: 1,
       list: [],
@@ -136,9 +136,48 @@ export default {
   computed: {
     ...mapState("stateChange", ["btnLoading"]),
     ...mapState("dict", ["monthTree"])
+    // endTime() {
+    //   let time=this.formatDate(this.beginTime);
+    //   return this.getNextMonth(time);
+    // }
   },
   methods: {
     ...mapActions("dict", ["getMonthTree"]),
+    // 格式化时间
+    formatDate(time) {
+      var date = new Date(time);
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1; //月份是从0开始的
+      var day = date.getDate();
+      var newTime = year + "-" + month + "-" + day;
+      return newTime;
+    },
+    //下一个月
+    getNextMonth(date) {
+      var arr = date.split("-");
+      var year = arr[0]; //获取当前日期的年份
+      var month = arr[1]; //获取当前日期的月份
+      var day = arr[2]; //获取当前日期的日
+      var days = new Date(year, month, 0);
+      days = days.getDate(); //获取当前日期中的月的天数
+      var year2 = year;
+      var month2 = parseInt(month) + 1;
+      if (month2 == 13) {
+        year2 = parseInt(year2) + 1;
+        month2 = 1;
+      }
+      var day2 = day;
+      var days2 = new Date(year2, month2, 0);
+      days2 = days2.getDate();
+      if (day2 > days2) {
+        day2 = days2;
+      }
+      if (month2 < 10) {
+        month2 = "0" + month2;
+      }
+      var t2 = year2 + "-" + month2 + "-" + day2;
+      return t2;
+    },
     //完成订货
     finishOrder() {
       let formatData = {
@@ -154,10 +193,10 @@ export default {
         returnType: 1
       }).then(item => {
         if (item.code == 1) {
-          this.tableData=[];
+          this.tableData = [];
           this.$refs.tree.setCheckedKeys([]);
-          this.beginTime="";
-          this.endTime="";
+          this.beginTime = "";
+          this.endTime = "";
           this.$message({
             message: "订货成功！",
             type: "success"
@@ -214,16 +253,21 @@ export default {
     searchHandle(val) {}
   },
   created() {
+    let time = this.formatDate(this.beginTime);
+    this.endTime = this.getNextMonth(time);
     this.getMonthTree();
     this.$alert("订货前请先盘点库存，否则会影响订货数据！", "提示", {
       confirmButtonText: "确定",
-      callback: action => {
-      }
+      callback: action => {}
     });
   },
   watch: {
     filterText(val) {
       this.$refs.tree.filter(val);
+    },
+    beginTime() {
+      let time = this.formatDate(this.beginTime);
+      this.endTime = this.getNextMonth(time);
     }
   },
   mounted() {

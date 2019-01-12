@@ -15,6 +15,28 @@
             @click="cancel()">取消盘点</el-button>
             <el-button class="fr" size="small" icon="el-icon-back" type="primary" plain v-show="view.detailView"
             @click="toPre()">后退</el-button>
+            <el-dropdown class="fr"  @command="handleCommand" v-show="view.addView"> 
+              <el-button plain size="small">
+                导入订货<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="download">下载模板</el-dropdown-item>
+                <el-dropdown-item command="upload">
+                  <template>
+                    <el-upload 
+                      class="upload-demo"
+                      action="/mgr/works/pc/warehouseCountCtrl/countByXls"
+                      :show-file-list="false"
+                      :on-success="handleAvatarSuccess"
+                      :on-error="handleAvatarFail"
+                      accept=".xlsx,.xls"
+                      > 
+                      <span size="small">点击上传</span>
+                    </el-upload>
+                  </template>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
         </nav>
         <!-- 盘点记录 -->
         <div style="background-color:#fff;" v-show="view.listView">
@@ -203,18 +225,14 @@
                     <el-table-column
                       prop="name"
                       label="原料名称"
-                      >
+                      > 
                     </el-table-column>
                     <el-table-column
                       prop="out_unit"
                       label="单位">
                     </el-table-column>
-                    <el-table-column
-                      prop="attribute"
-                      label="规格">
-                    </el-table-column>
-                    <el-table-column
-                      prop="before_quantity"
+                    <el-table-column 
+                      prop="his_quantity"
                       label="历史库存">
                     </el-table-column>
                     <el-table-column
@@ -236,6 +254,7 @@ import {
   getInvenList,
   stopMarters,
   getPreStockList,
+  downloadWarehouseStock,
   addWarehouseTree
 } from "../../api";
 
@@ -289,6 +308,45 @@ export default {
   },
   methods: {
     ...mapActions("dict", ["getStockTree"]),
+    //文件上传成功
+    handleAvatarSuccess(res, file) {
+      if (res.code == 1) {
+        this.$message({
+          message: "上传成功！",
+          type: "success"
+        });
+      } else if (res.code == 0) {
+        const h = this.$createElement;
+        this.$alert(`<span>上传失败，请下载文件查看原因：<a href=${res.data.down_url}>${res.data.down_url}</a></span>`, '上传失败', {
+          dangerouslyUseHTMLString: true
+        });
+      }
+    },
+    //文件上传失败
+    handleAvatarFail(err, file, fileList){ 
+      console.log(err, file, fileList)
+    },
+    //导入订货
+    handleCommand(command) {
+      if (command == "download") {
+        //下载模板
+        this.downLoadExp();
+      }
+    },
+    //下载模板
+    downLoadExp() {
+      addData({
+        requestUrl: downloadWarehouseStock,
+        params: {},
+        paramsType: 2
+      }).then(item => {
+        if (item.code == 0) {
+          this.$message.error("导出失败！");
+        } else {
+          window.open(item.data.down_url, "_blank");
+        }
+      });
+    },
     handleCurrentChange(val) {
       this.curPageIndex = val;
       getList({

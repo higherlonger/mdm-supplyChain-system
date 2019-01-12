@@ -9,12 +9,35 @@
             </el-breadcrumb>
             <el-button class="fr" size="small" icon="el-icon-plus" type="primary" plain v-show="view.listView"
             @click="topHandle()">新增盘点</el-button>
-            <el-button class="fr" size="small" type="primary" plain v-show="view.addView"
-            @click="okWrite()">完成盘点</el-button>
             <el-button class="fr" size="small"  plain v-show="view.addView"
             @click="cancel()">取消盘点</el-button>
+            <el-button class="fr" size="small" type="primary" plain v-show="view.addView"
+            @click="okWrite()">完成盘点</el-button>
+            
             <el-button class="fr" size="small" icon="el-icon-back" type="primary" plain v-show="view.detailView"
             @click="toPre()">后退</el-button>
+            <el-dropdown class="fr"  @command="handleCommand" v-show="view.addView"> 
+              <el-button plain size="small">
+                导入订货<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="download">下载模板</el-dropdown-item>
+                <el-dropdown-item command="upload">
+                  <template>
+                    <el-upload 
+                      class="upload-demo"
+                      action="/mgr/works/pc/warehouseCountCtrl/countByXls"
+                      :show-file-list="false"
+                      :on-success="handleAvatarSuccess"
+                      :on-error="handleAvatarFail"
+                      accept=".xlsx,.xls"
+                      > 
+                      <span size="small">点击上传</span>
+                    </el-upload>
+                  </template>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
         </nav>
         <!-- 盘点记录 -->
         <div style="background-color:#fff;" v-show="view.listView">
@@ -227,7 +250,8 @@ import {
   getInvenList,
   stopMarters,
   getInvenDataList,
-  addInven
+  addInven,
+  downloadStock
 } from "../../api";
 import { getList, getListPage, addData } from "../../common";
 import AppDialog from "../common/AppDialog.vue";
@@ -264,7 +288,7 @@ export default {
         detailView: !1
       },
       row: {},
-      test:[]
+      test: []
     };
   },
   computed: {
@@ -273,6 +297,45 @@ export default {
   },
   methods: {
     ...mapActions("dict", ["getInventoryTree"]),
+    //文件上传成功
+    handleAvatarSuccess(res, file) {
+      if (res.code == 1) {
+        this.$message({
+          message: "上传成功！",
+          type: "success"
+        });
+      } else if (res.code == 0) {
+        const h = this.$createElement;
+        this.$alert(`<span>上传失败，请下载文件查看原因：<a href=${res.data.down_url}>${res.data.down_url}</a></span>`, '上传失败', {
+          dangerouslyUseHTMLString: true
+        });
+      }
+    },
+    //文件上传失败
+    handleAvatarFail(err, file, fileList){ 
+      console.log(err, file, fileList)
+    },
+    //导入订货
+    handleCommand(command) {
+      if (command == "download") {
+        //下载模板
+        this.downLoadExp();
+      }
+    },
+    //下载模板
+    downLoadExp() {
+      addData({
+        requestUrl: downloadStock,
+        params: {},
+        paramsType: 2
+      }).then(item => {
+        if (item.code == 0) {
+          this.$message.error("导出失败！");
+        } else {
+          window.open(item.data.down_url, "_blank");
+        }
+      });
+    },
     handleCurrentChange(val) {
       this.curPageIndex = val;
       getList({
@@ -316,7 +379,7 @@ export default {
       this.view.listView = !this.view.listView;
       this.view.detailView = !this.view.detailView;
       this.row = _row;
-      this.test=this.row.count_item.items
+      this.test = this.row.count_item.items;
       // console.log(this.row.count_item.items[0].columns.name)
     },
     getCheckedNodes() {
@@ -390,9 +453,9 @@ export default {
       }
       this.tableData = val;
     },
-    toPre(){
-      this.view.listView=!this.view.listView;
-      this.view.detailView=!this.view.detailView;
+    toPre() {
+      this.view.listView = !this.view.listView;
+      this.view.detailView = !this.view.detailView;
     },
     //处理提交的数据格式
     filterUpData() {
@@ -446,10 +509,6 @@ export default {
           _row.item_remark = value;
         })
         .catch(() => {
-          this.$message({
-            type: "info",
-            message: "取消输入"
-          });
         });
     }
   },

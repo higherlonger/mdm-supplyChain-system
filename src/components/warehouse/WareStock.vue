@@ -7,12 +7,10 @@
             <el-breadcrumb-item>库存管理</el-breadcrumb-item>
             <el-breadcrumb-item>库存</el-breadcrumb-item>
         </el-breadcrumb>
-        <el-button class="fr" size="small" icon="el-icon-plus" type="primary" plain 
-            @click="topHandle()">新增库存</el-button>
     </nav>
     <!-- 搜索条件 --> 
     <div class="component-top">
-        <div class="search-title fl">搜索：</div>
+        <div class="search-title fl">搜索：</div>  
         <el-input
             placeholder="请输入名称"
             prefix-icon="el-icon-search"
@@ -160,10 +158,6 @@ export default {
         this.list = item.list.list;
       });
       }
-    },
-    //新增库存
-    topHandle(){
-      this.dialog.addVisible=!0;
     },
     //根据条件搜素
     searchHandle(val) {

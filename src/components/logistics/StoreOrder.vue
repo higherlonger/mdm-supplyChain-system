@@ -7,7 +7,7 @@
             <el-breadcrumb-item>订单管理</el-breadcrumb-item>
             <el-breadcrumb-item>门店订货单</el-breadcrumb-item>
         </el-breadcrumb>
-        <el-button class="fr" size="small" icon="el-icon-warning" type="danger"  plain v-show="visible.detail" v-if="this.rowInfo.order_state=='to_be_received'"
+        <el-button class="fr" size="small" disabled icon="el-icon-warning" type="danger"  plain v-show="visible.detail" v-if="this.rowInfo.order_state=='to_be_confirmed'"
             @click="bohui">驳回</el-button>
         <el-button class="fr" size="small" icon="el-icon-warning" type="danger"  plain v-show="visible.detail" v-else
             @click="bohui">驳回</el-button>
@@ -45,7 +45,7 @@
               class="fl"
               size="small"
               @keyup.enter.native="searchHandle"
-              style="width:220px;margin-right:10px;"
+              style="width:160px;margin-right:10px;"
               v-model="search.num">
           </el-input>
           <div class="search-title fl">状态：</div>
@@ -53,7 +53,7 @@
                   class="fl"
                   size="small" 
                   clearable
-                  v-model="search.state"
+                  v-model="search.order_state"
                   @change="searchHandle"
                   style="width:160px;margin-right:10px;"
                   >
@@ -135,12 +135,15 @@
                   <el-tag size="medium" :type=scope.row.order_state_color>{{scope.row.order_state_text}}</el-tag>
               </template>
               </el-table-column>
-              <el-table-column label="操作" width="280">
+              <el-table-column label="操作" width="330">
                   <template slot-scope="scope">
                       <el-button 
                       size="mini"
                       @click="recordHandle(scope.row,'seeVisible')">查看</el-button>
-                      
+                      <el-button 
+                      size="mini"
+                      type="warning"
+                      @click="print(scope.row)">打印</el-button>
                       <el-button
                       size="mini"
                       type="primary"
@@ -376,7 +379,8 @@ import {
   discardReturnOrder,
   agreeOrder,
   getOutOrderInfo,
-  submitOrder
+  submitOrder,
+  printOrder
 } from "../../api";
 import { getList, addData, getListPage } from "../../common";
 import AppDialog from "../common/AppDialog.vue";
@@ -386,7 +390,7 @@ export default {
   data() {
     return {
       search: {
-        state: "",
+        order_state: "",
         num: "",
         store_id: ""
       },
@@ -406,7 +410,7 @@ export default {
       outOrderDetail: "",
       rowInfo: "",
       orderList: {},
-      problem:[]
+      problem: []
     };
   },
   components: {
@@ -429,6 +433,25 @@ export default {
         this.list = item.list;
       });
     },
+    setSearchParams(params) {
+      const search = window.location.search;
+      let str = search.indexOf("?") == -1 ? "?" : "&";
+      let _arr = [];
+      for (let i in params) {
+        _arr.push(i + "=" + encodeURIComponent(params[i]));
+      }
+      return str + _arr.join("&");
+    }, 
+    //打印
+    print(_row) {
+      addData({
+        requestUrl: printOrder,
+        params: { id: _row.id },
+        paramsType: 2
+      }).then(item => {
+        window.open(`../../../static/print.html${this.setSearchParams(item.data)}`,"_blank");
+      });
+    },
     bohui() {
       this.$prompt("请输入驳回原因", "提示", {
         confirmButtonText: "确定",
@@ -443,23 +466,57 @@ export default {
         })
         .catch(() => {});
     },
-    submit(){
+    //撤销订单
+    cancelOrder(_row, value) {
+      addData({
+        requestUrl: discardReturnOrder,
+        params: { id: _row.id, close_reason: value } 
+      })
+        // .then(item => {
+        //   if (item == 1) {
+        //     this.$message({
+        //       message: "驳回成功！",
+        //       type: "success"
+        //     });
+        //     getList({
+        //       requestUrl: getCommodityList,
+        //       params: { ...this.search, pageSize: this.pageSize }
+        //     }).then(item => {
+        //       this.total = item.total;
+        //       this.list = item.list;
+        //     });
+        //   } else {
+        //     this.$message.error("驳回失败");
+        //   }
+        // })
+        // .catch(error => {
+        //   this.$message.error("驳回失败");
+        // });
+    },
+    submit() {
       let obj = {
         order_id: this.orderList.order_id,
         out_order_list: this.outData
-      }; 
+      };
       addData({
         requestUrl: submitOrder,
         paramsType: 1,
         preData: obj
       }).then(item => {
         if (item == 1) {
+          for(let attr in this.visible){
+            this.visible[attr]=!1
+          }
+          this.visible['order']=!0;
           this.$message({
             message: "提交成功！",
             type: "success"
           });
+        }else if(item==0){
+          this.$message.error('提交失败！');
         }
-      })
+
+      });
     },
     //操作弹窗控制
     recordHandle(_row, text) {
@@ -485,12 +542,12 @@ export default {
         }).then(item => {
           this.orderList.arrive_date = item.list.arrive_date;
           this.orderList.num = item.list.num;
-          this.orderList.order_id=item.list.order_id;
+          this.orderList.order_id = item.list.order_id;
           this.orderList.order_date = item.list.order_date;
           this.orderList.problem_map = item.list.problem_map;
           this.orderList.store_name = item.list.store_name;
           this.outData = item.list.warehouse_out_order_list;
-          this.problem=item.list.problem_map.not_enough;
+          this.problem = item.list.problem_map.not_enough;
           // this.outOrderDetail=item.list
         });
       }
@@ -522,33 +579,6 @@ export default {
           this.$message.error("接收失败");
         });
     },
-    //撤销订单
-    cancelOrder(_row, value) {
-      addData({
-        requestUrl: discardReturnOrder,
-        params: { id: _row.id, close_reason: value }
-      })
-        .then(item => {
-          if (item == 1) {
-            this.$message({
-              message: "驳回成功！",
-              type: "success"
-            });
-            getList({
-              requestUrl: getCommodityList,
-              params: { ...this.search, pageSize: this.pageSize }
-            }).then(item => {
-              this.total = item.total;
-              this.list = item.list;
-            });
-          } else {
-            this.$message.error("驳回失败");
-          }
-        })
-        .catch(error => {
-          this.$message.error("驳回失败");
-        });
-    },
     //重新获取数据
     reloadGetData(res) {
       if (res == "reload") {
@@ -566,8 +596,9 @@ export default {
     //根据条件搜素
     searchHandle(val) {
       if (val == "all") {
-        this.search.keyword = "";
-        this.search.state = "";
+        this.search.num = "";
+        this.search.order_state = "";
+        this.search.store_id="";
       }
       getList({
         requestUrl: getCommodityList,

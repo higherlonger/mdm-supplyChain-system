@@ -111,8 +111,8 @@ export default {
         keyword: "",
         handle_id: ""
       },
-      beginTime: "",
-      endTime: "",
+      beginTime: new Date(),
+      endTime: new Date(),
       total: 1,
       list: [],
       curPageIndex: 1,

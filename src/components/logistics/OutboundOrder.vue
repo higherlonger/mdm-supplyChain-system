@@ -24,7 +24,23 @@
                   style="width:160px;margin-right:10px;"
                   >
                   <el-option
-                  v-for="item in orderStates"
+                  v-for="item in storeList" 
+                  :key="item.value"
+                  :label="item.name"
+                  :value="item.value">
+                  </el-option> 
+              </el-select>
+          <div class="search-title fl">仓库：</div>
+              <el-select 
+                  class="fl"
+                  size="small" 
+                  clearable
+                  v-model="search.warehouse_id"
+                  @change="searchHandle"
+                  style="width:160px;margin-right:10px;"
+                  >
+                  <el-option
+                  v-for="item in wareHouse" 
                   :key="item.value"
                   :label="item.name"
                   :value="item.value">
@@ -50,7 +66,7 @@
                   style="width:160px;margin-right:10px;"
                   >
                   <el-option
-                  v-for="item in orderStates"
+                  v-for="item in outOrderList"
                   :key="item.value"
                   :label="item.name"
                   :value="item.value">
@@ -61,7 +77,7 @@
               全部
           </el-button>
       </div>
-      <!-- 表格 -->
+      <!-- 表格 --> 
       <div class="component-main">
           <el-table
               :data="list"
@@ -75,46 +91,51 @@
               prop="num"
               label="订单编号"
               >
+              <template slot-scope="scope">
+                <span :style="{color: scope.row.store_color}">{{ scope.row.num }}</span>
+              </template>
+              </el-table-column>
+              <el-table-column
+              prop="warehouse_name"
+              label="仓库名称"
+              >
+              <template slot-scope="scope">
+                <span :style="{color: scope.row.store_color}">{{ scope.row.warehouse_name }}</span>
+              </template>
               </el-table-column>
               <el-table-column
               prop="store_name"
               label="门店名称"
               >
+              <template slot-scope="scope">
+                <span :style="{color: scope.row.store_color}">{{ scope.row.store_name }}</span>
+              </template>
               </el-table-column>
               <el-table-column
-              prop="order_date"
-              label="订货日期"
+              prop="out_date"
+              label="出库日期"
               >
-              </el-table-column>
-              <el-table-column
-              prop="arrive_date"
-              label="到货日期"
-              >
-              </el-table-column>
-              <el-table-column
-              prop="create_date"
-              label="提交日期"
-              >
-              </el-table-column>
-              <el-table-column
-              prop="order_type_text"
-              label="订单类型"
-              >
+              <template slot-scope="scope">
+                <span :style="{color: scope.row.store_color}">{{ scope.row.out_date }}</span>
+              </template>
               </el-table-column>
               <el-table-column
               prop="order_state_text"
               label="状态"
               width="100">
               <template slot-scope="scope">
-                  <el-tag size="medium" :type=scope.row.order_state_color>{{scope.row.order_state_text}}</el-tag>
+                  <el-tag size="medium" :type=scope.row.state_color>{{scope.row.state_text}}</el-tag>
               </template>
               </el-table-column>
-              <el-table-column label="操作" width="150">
+              <el-table-column label="操作" width="200">
                   <template slot-scope="scope">
                       <el-button 
                       size="mini"
                       @click="recordHandle(scope.row,'seeVisible')">查看</el-button>
-                    
+                      <el-button 
+                      type="primary"
+                      size="mini"
+                      @click="print(scope.row)">打印</el-button>
                   </template>
                   </el-table-column>
           </el-table>
@@ -140,23 +161,14 @@
             <el-form-item label="门店名称" class="rightShow item">
                 <span class="form-record-show list">{{ detail.store_name }}</span>
             </el-form-item>
-            <el-form-item label="订货日期" class="leftShow item">
-                <span class="form-record-show list">{{ detail.order_date }}</span>
+            <el-form-item label="仓库名称" class="leftShow item">
+                <span class="form-record-show list">{{ detail.warehouse_name }}</span>
             </el-form-item>
-            <el-form-item label="到货日期" class="rightShow item">
-                <span class="form-record-show list">{{ detail.arrive_date }}</span>
+            <el-form-item label="出库日期" class="rightShow item">
+                <span class="form-record-show list">{{ detail.out_date }}</span>
             </el-form-item>
-            <el-form-item label="提交日期" class="leftShow item">
-                <span class="form-record-show list">{{ detail.create_date }}</span>
-            </el-form-item>
-            <el-form-item label="订单类型" class="rightShow item">
-                <span class="form-record-show list">{{ detail.order_type_text }}</span>
-            </el-form-item>
-            <el-form-item label="订单状态" class="leftShow item">
-                <span class="form-record-show list">{{ detail.order_state_text }}</span>
-            </el-form-item>
-            <el-form-item label="撤销原因" class="rightShow remark">
-                <span class="form-record-show list">{{ detail.close_reason }}</span>
+            <el-form-item label="状态" class="leftShow item">
+                <span class="form-record-show list">{{ detail.state_text }}</span>
             </el-form-item>
         </el-form>
         <!-- 采购项信息 -->
@@ -181,11 +193,11 @@
             label="门店采购价">
             </el-table-column>
             <el-table-column 
-            prop="order_quantity"
-            label="订货数量">
+            prop="out_unit_quantity"
+            label="出库数量"> 
             </el-table-column>
             <el-table-column 
-            prop="unit"
+            prop="out_unit"
             label="单位">
             </el-table-column>
             <el-table-column 
@@ -200,7 +212,7 @@
 </template>
 
 <script>
-import { getCommodityList, discardReturnOrder, agreeOrder } from "../../api";
+import { getAllStore, discardReturnOrder, agreeOrder ,printOutOrder} from "../../api";
 import { getList, addData } from "../../common";
 import AppDialog from "../common/AppDialog.vue";
 import { mapState, mapActions } from "vuex";
@@ -211,7 +223,8 @@ export default {
       search: {
         state: "",
         num: "",
-        store_id: ""
+        store_id: "",
+        warehouse_id:""
       },
       detail: {},
       total: 1,
@@ -228,15 +241,34 @@ export default {
   },
   computed: {
     ...mapState("stateChange", ["btnLoading"]),
-    ...mapState("dict", ["orderStates"])
+    ...mapState("dict", ["storeList","outOrderList","wareHouse"])
   },
   methods: {
-    ...mapActions("dict", ["getOrderStates"]),
+    ...mapActions("dict", ["getStoreList","getOutOrderList","getWareHouse"]),
+    setSearchParams(params) {
+      const search = window.location.search;
+      let str = search.indexOf("?") == -1 ? "?" : "&";
+      let _arr = [];
+      for (let i in params) {
+        _arr.push(i + "=" + encodeURIComponent(params[i]));
+      }
+      return str + _arr.join("&");
+    }, 
+    //打印
+    print(_row) {
+      addData({
+        requestUrl: printOutOrder,
+        params: { id: _row.id },
+        paramsType: 2
+      }).then(item => {
+        window.open(`../../../static/print.html${this.setSearchParams(item.data)}`,"_blank");
+      });
+    },
     handleCurrentChange(val) {
       this.curPageIndex = val;
       getList({
         currPage: this.curPageIndex,
-        requestUrl: getCommodityList,
+        requestUrl: getAllStore,
         params: { ...this.search, pageSize: this.pageSize }
       }).then(item => {
         this.total = item.total;
@@ -265,7 +297,7 @@ export default {
               type: "success"
             });
             getList({
-              requestUrl: getCommodityList,
+              requestUrl: getAllStore,
               params: { ...this.search, pageSize: this.pageSize }
             }).then(item => {
               this.total = item.total;
@@ -286,7 +318,7 @@ export default {
           this.dialog[attr] = !1;
         }
         getList({
-          requestUrl: getCommodityList,
+          requestUrl: getAllStore,
           params: { ...this.search, pageSize: this.pageSize }
         }).then(item => {
           this.list = item;
@@ -296,11 +328,13 @@ export default {
     //根据条件搜素
     searchHandle(val) {
       if (val == "all") {
-        this.search.keyword = "";
+        this.search.num = "";
         this.search.state = "";
+        this.search.warehouse_id="";
+        this.search.store_id="";
       }
       getList({
-        requestUrl: getCommodityList,
+        requestUrl: getAllStore,
         params: { ...this.search, pageSize: this.pageSize }
       }).then(item => {
         this.total = item.total;
@@ -313,10 +347,12 @@ export default {
     }
   },
   created() {
-    this.getOrderStates();
+    this.getStoreList();
+    this.getOutOrderList();
+    this.getWareHouse()
     //获取列表
     getList({
-      requestUrl: getCommodityList,
+      requestUrl: getAllStore,
       params: { ...this.search, pageSize: this.pageSize }
     }).then(item => {
       this.total = item.total;

@@ -2,19 +2,21 @@
     <div style="width:100%">
        <el-form :model="form" :rules="rules" ref="form" label-width="100px" size="small">
           <el-form-item label="用户名" prop="username">
-              <el-input v-model="form.username" clearable placeholder="用户姓名" class="leftItv"></el-input>
+              <el-input v-model="form.username" clearable placeholder="请输入用户姓名" class="leftItv"></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="password">
-              <el-input v-model="form.password" clearable placeholder="用户姓名" class="leftItv"></el-input>
+              <el-input v-model="form.password" clearable placeholder="请输入密码" class="leftItv"></el-input>
           </el-form-item>
           <el-form-item label="昵称" prop="nickname">
-              <el-input v-model="form.nickname" clearable placeholder="用户姓名" class="leftItv"></el-input>
+              <el-input v-model="form.nickname" clearable placeholder="请输入昵称" class="leftItv"></el-input>
           </el-form-item>
           <el-form-item label="性别" prop="sex">
-              <el-input v-model="form.sex" clearable placeholder="用户姓名" class="leftItv"></el-input>
+              <el-select v-model="form.sex" placeholder="请选性别" class="leftItv">
+                  <el-option v-for="(item, key) in sexList" :key="key" :label="item.name" :value="item.value"></el-option>
+              </el-select>
           </el-form-item>
           <el-form-item label="电话" prop="phone">
-              <el-input v-model="form.phone" clearable placeholder="用户姓名" class="leftItv"></el-input>
+              <el-input v-model="form.phone" clearable placeholder="请输入电话" class="leftItv"></el-input>
           </el-form-item>
           <el-form-item label="角色" prop="role_id">
               <el-select v-model="form.role_id" clearable placeholder="请选角色" class="leftItv">
@@ -22,7 +24,7 @@
               </el-select>
           </el-form-item> 
           <el-form-item label="备注" prop="remark">
-              <el-input v-model="form.remark" clearable placeholder="用户姓名" class="leftItv"></el-input>
+              <el-input type="texteare" v-model="form.remark" clearable placeholder="请输入备注" class="leftItv"></el-input>
           </el-form-item>
           <el-form-item>
               <el-button type="primary" @click="submitForm('form')" :loading="btnLoading">提交</el-button>
@@ -48,6 +50,13 @@ export default {
         role_id:"",
         remark:""
       },
+      sexList:[{
+        name:'男',
+        value:'1'
+      },{
+        name:'女',
+        value:'0'
+      }],
       rules: {
         username: [
           { required: true, message: "请输入用户姓名", trigger: "blur" }

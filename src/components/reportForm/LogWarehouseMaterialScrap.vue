@@ -5,22 +5,21 @@
         <el-breadcrumb separator="/" class="fl">
             <el-breadcrumb-item :to="{ path: '/sys_setting' }">报表管理</el-breadcrumb-item>
             <el-breadcrumb-item>物流报表</el-breadcrumb-item>
-            <el-breadcrumb-item>原料废弃</el-breadcrumb-item>
+            <el-breadcrumb-item>仓库原料废弃</el-breadcrumb-item>
         </el-breadcrumb>
         <el-button class="fr" size="small" icon="el-icon-download" type="primary" plain 
             @click="outReport">导出报表</el-button>
     </nav>
 
-    <div style="background-color:#fff;"> 
+    <div style="background-color:#fff;">  
       <!-- 搜索条件 -->
       <div class="component-top">
           <div class="search-title fl">选择原料：</div>
               <el-select 
                   class="fl"
-                  size="small" 
-                  filterable  
+                  size="small"   
                   clearable
-                  v-model="search.material_id"
+                  v-model="search.store_id"
                   @change="searchHandle"
                   style="width:160px;margin-right:10px;"
                   >
@@ -84,7 +83,7 @@
 </template>
 
 <script>
-import { getMaterialScrap,getMaterialScrapExp } from "../../api";
+import { getLogWareMaterialhouseScrap,getLogWareMaterialhouseScrapExp } from "../../api";
 import { getList, addData, getListPage } from "../../common";
 import AppDialog from "../common/AppDialog.vue";
 import { mapState, mapActions } from "vuex";
@@ -93,14 +92,15 @@ export default {
   data() {
     return {
       search: {
-        beginTime: "",
-        endTime: ""
+        beginTime: "", 
+        endTime: "",
+        store_id:""
       },
       thead: [],
-      tbody: [], 
+      tbody: [],
       title: []
     };
-  },
+  }, 
   components: {
     AppDialog
   },
@@ -115,9 +115,10 @@ export default {
       if (val == "all") {
         this.search.beginTime = "";
         this.search.endTime = "";
+        this.search.store_id="";
       }
       getListPage({
-        requestUrl: getMaterialScrap,
+        requestUrl: getLogWareMaterialhouseScrap,
         params: { ...this.search }
       }).then(item => {
         this.thead = item.list.thead_list;
@@ -128,7 +129,7 @@ export default {
     //导出报表
     outReport() {
       addData({
-        requestUrl: getMaterialScrapExp,
+        requestUrl: getLogWareMaterialhouseScrapExp,
         params: { beginTime:this.search.beginTime,endTime:this.search.endTime },
         paramsType:2
       }).then(item=>{ 
@@ -141,8 +142,8 @@ export default {
     }
   },
   created() {
-    this.getMaterialList()
-   
+    this.getMaterialList();
+    
   }
 };
 </script>

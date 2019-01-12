@@ -96,7 +96,7 @@
     </div> 
     <!-- 弹窗 -->
     <app-dialog title="新增分类" :visible.sync="dialog.addVisible">
-      <add-class :state="state"></add-class>
+      <add-class :state="state" @reloadEvent="reloadGetData"></add-class>
     </app-dialog>
     <app-dialog title="修改分类" :visible.sync="dialog.editVisible">
       <edit-class :info="info" @reloadEvent="reloadGetData"></edit-class>
@@ -224,7 +224,6 @@ export default {
     }
   },
   created() {
-
     getListPage({
       requestUrl: getCagTree,
       params: { type: "material" }

@@ -42,7 +42,7 @@
                     size="small"
                     @change="searchHandle('time')"
                     type="daterange"
-                    value-format="yyyy-MM-dd HH:mm:ss"
+                    value-format="yyyy-MM-dd"
                     range-separator="至"
                     start-placeholder="开始日期"
                     end-placeholder="结束日期"
@@ -326,8 +326,13 @@ export default {
         this.search.to_date = "";
       }
       if (val == "time") {
-        this.search.from_date = this.timeSlot[0];
-        this.search.to_date = this.timeSlot[1];
+        if (this.timeSlot==null) {
+          this.search.from_date = "";
+          this.search.to_date = "";
+        } else {
+          this.search.from_date = this.timeSlot[0];
+          this.search.to_date = this.timeSlot[1];
+        }
       }
       getList({
         requestUrl: getReturnOrdersList,

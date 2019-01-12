@@ -2,8 +2,11 @@
 <div style="width:100%">
     <el-form :model="infoList" ref="infoList" size="small" label-width="100px" :rules="rules">  
         <el-form-item label="所属分类" prop="parent_id">
-            <el-select v-model="infoList.parent_id" filterable allow-create default-first-option  placeholder="请选分类" class="leftItv">
-                <el-option v-for="item in provinceList" :key="item.value" :label="item.name" :value="item.value"></el-option>
+            <el-select v-if="state==0" v-model="infoList.parent_id" filterable allow-create default-first-option  placeholder="请选分类" class="leftItv">
+                <el-option v-for="item in materialListAry" :key="item.value" :label="item.name" :value="item.value"></el-option>
+            </el-select>
+            <el-select v-else v-model="infoList.parent_id" filterable allow-create default-first-option  placeholder="请选分类" class="leftItv">
+                <el-option v-for="item in materialListAry" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
         </el-form-item> 
         <el-form-item label="分类名称" prop="name">
@@ -22,7 +25,7 @@
         </el-form-item> 
         <el-form-item label="备注" prop="remark">
             <el-input class="textarea leftItv"
-            type="text"
+            type="textarea"
             placeholder="请输入备注"
             v-model="infoList.remark">
             </el-input>
@@ -38,15 +41,14 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import { addData } from "../../common";
-import { addAddress } from "../../api";
+import { addCatalog } from "../../api";
 export default {
   name: "add-class",
+  props:['state'],
   data() {
     return {
       infoList: {
-        province: "",
-        city: "",
-        address: ""
+       
       },
       rules: {
         parent_id: [
@@ -58,18 +60,24 @@ export default {
     };
   },
   computed: {
-    ...mapState("dict", ["cityList", "provinceList"]),
+    ...mapState("dict", ["cityList", "materialListAry","commodityListAry"]),
     ...mapState("stateChange", ["btnLoading"])
   },
   methods: {
-    ...mapActions("dict", ["getCityList", "getProvinceList"]),
+    ...mapActions("dict", ["getCityList", "getMaterialListMatAry","getMaterialListComAry"]),
     submitForm(formName) {
+      let typeVal;
+      if(this.state==0){
+        typeVal='material';
+      }else if(this.state==1){
+        typeVal='product';
+      }
       this.$refs[formName].validate(valid => {
         if (valid) {
           addData({
-            requestUrl: addAddress,
-            params: { ...this.infoList }
-          })
+            requestUrl: addCatalog,
+            params: { ...this.infoList,type:typeVal }
+          }) 
             .then(item => {
               this.$emit("reloadEvent", "reload");
               if (item == 1) {
@@ -96,7 +104,8 @@ export default {
   },
   created() {
     this.getCityList();
-    this.getProvinceList();
+    this.getMaterialListMatAry();
+    this.getMaterialListComAry();
   }
 };
 </script>

@@ -10,8 +10,8 @@
         <el-form-item label="城市" prop="city">
             <span class="form-record-show">{{ form.city }}</span>
         </el-form-item>
-        <el-form-item label="状态" prop="state">
-            <span class="form-record-show">{{ form.state }}</span>
+        <el-form-item label="状态" prop="state_text">
+            <span class="form-record-show">{{ form.state_text }}</span>
         </el-form-item>
     </el-form>
 </div>

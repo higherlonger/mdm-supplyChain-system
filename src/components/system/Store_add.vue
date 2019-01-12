@@ -87,10 +87,6 @@ export default {
                 ...this.form
             })
             if(response.code==1){
-                this.$message({
-                    message: '新增成功！',
-                    type: 'success'
-                });
                 this.closePanle();
                 this.$emit('relateGoods', this.form)
             }else{

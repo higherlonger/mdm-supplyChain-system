@@ -1,13 +1,20 @@
 import {instance,serverUrl} from './fetch'
 
 /* 共用 */
-//获取导航
+//获取导航 
 export const getNavList=()=>instance.get('sysMenuCtrl')
 //字典值
 export const dictionary=params=>instance.get('dictionaryCtrl/getDict',{params})
 //登录
-export const login=params=>instance.get('http://192.168.1.103:8080/loginCtrl',{params})
-
+export const login=params=>instance.get('http://localhost:8080/loginCtrl',{params})
+//废弃单-获取token
+export const getScrapToken=params=>instance.post('http://localhost:8080/quniuCtrl/getToken',params)
+//个人设置
+export const personset=params=>instance.get('sysUserCtrl/showMyDetail',{params})
+//提交修改
+export const updatePerson=params=>instance.get('sysUserCtrl/updateById',{params})
+//退出登录
+export const outLogin=params=>instance.get('sysUserCtrl/loginout',{params})
 
 /* 系统管理-门店管理 */
 //门店列表-获取门店列表
@@ -24,6 +31,8 @@ export const addStore=params=>instance.get('storeCtrl/add',{params})
 export const stopStore=params=>instance.get('storeCtrl/updateState',{params})
 //门店列表-关联商品
 export const relationGoods=params=>instance.post('storeProductRelationCtrl/createStoreProductRelation',params)
+//门店列表-确认快速建店
+export const configQuickStore=params=>instance.post('storeCtrl/quickCreateStore',params)
 
 
 /* 系统管理-系统设置 */
@@ -86,9 +95,13 @@ export const editSupp=params=>instance.post('supplierCtrl/updateById',params)
 export const editClass=params=>instance.post('catalogCtrl/updateById',params)
 //分类管理-删除分类
 export const delClass=params=>instance.get('catalogCtrl/deleteByIds',{params})
+//分类管理-新增分类
+export const addCatalog=params=>instance.get('catalogCtrl/add',{params})
 
 
 /* 系统管理-商品管理 */
+//原料管理-原料下拉条列表
+export const getList=params=>instance.get('catalogCtrl/getCatalogNameIdTree',{params})
 //原料管理-列表查询
 export const getMaterList=params=>instance.get('materialCtrl/query',{params})
 //原料管理-分类树
@@ -119,6 +132,8 @@ export const getParentProcucts=params=>instance.get('productCtrl/getAllParentPro
 export const getFormulaById=params=>instance.get('productCtrl/showById',{params})
 //修改bom
 export const editBom=params=>instance.post('productCtrl/updateBom',params)
+//修改bom
+export const editCommodity=params=>instance.post('productCtrl/updateById',params)
 
 
 
@@ -131,17 +146,23 @@ export const getInvenList=params=>instance.get('storeCountCtrl/query',{params})
 export const getInvenDataList=params=>instance.get('storeStockCtrl/list',{params})
 //盘点-新增盘点
 export const addInven=params=>instance.post('storeCountCtrl/add',params)
+//盘点-下载模板
+export const downloadStock=params=>instance.post('warehouseCountCtrl/countByXlsTemplate',params)
+//盘点-导入xls
+export const downloadXls=params=>instance.post('warehouseCountCtrl/countByXls',params)
 
 
 /* 店长管理-库存管理 */
 //订单管理-获取退货单列表
 export const getReturnOrdersList=params=>instance.get('orderReturnCtrl/query',{params})
 //订单管理-店长撤销
-export const closeReturnOrdersList=params=>instance.post('orderReturnCtrl/revokeOrder',params)
+export const closeReturnOrdersList=params=>instance.get('orderReturnCtrl/revokeOrder',{params})
 //订单管理-撤销废弃单
-export const closeDiscardOrdersList=params=>instance.post('orderScrapCtrl/revokeOrder',params)
+export const closeDiscardOrdersList=params=>instance.get('orderScrapCtrl/revokeOrder',{params})
 //订单管理-获取废弃单列表
-export const getDiscardList=params=>instance.post('orderScrapCtrl/query',params)
+export const getDiscardList=params=>instance.get('orderScrapCtrl/query',{params})
+//订单管理-获取仓库废弃列表
+export const getWarehouseDiscardList=params=>instance.get('warehouseScrapCtrl/query',{params})
 
 
 /* 店长管理-订单管理 */
@@ -223,7 +244,13 @@ export const getInputWarehouseList=params=>instance.post('warehouseInCtrl/query'
 export const getInputWarehouseTree=params=>instance.post('warehouseInCtrl/getWarehouseInMaterialTree',params)
 //盘点-完成入库
 export const addInputWarehouseTree=params=>instance.post('warehouseInCtrl/add',params)
-   
+//订单管理-提交废弃单
+export const submitScrapOrder=params=>instance.post('warehouseScrapCtrl/add',params)
+
+//盘点-导入xls
+export const downloadWarehouseXls=params=>instance.post('warehouseCountCtrl/countByXls',params)
+
+     
 
 /* 物流管理-订单管理 */
 //门店退货单-获取列表
@@ -248,7 +275,7 @@ export const discardReturnOrder=params=>instance.post('orderCtrl/logisticsOverru
 export const agreeOrder=params=>instance.post('orderCtrl/logisticsReceived',params)
 //门店订货单-生成出库单-获取
 export const getOutOrderInfo=params=>instance.post('orderCtrl/createOutOrder',params)
-//获取所有门店
+//获取所有门店 
 export const getAllStore=params=>instance.post('warehouseOutOrderCtrl/query',params)
 //移库单-下拉仓库值
 export const getWarehouseValue=params=>instance.get('warehouseCtrl/queryWarehouse',{params})
@@ -258,6 +285,10 @@ export const getMoveOrderList=params=>instance.get('warehouseMovementOrderCtrl/q
 export const getMoveOrderTree=params=>instance.get('warehouseStockCtrl/getStockMaterialTree',{params})
 //移库单-确认移库
 export const okMoveOrder=params=>instance.get('warehouseMovementOrderCtrl/add',{params})
+//打印送货单
+export const printOrder=params=>instance.get('print/printCtrl/printSendGoodsOrder',{params})
+//打印出库单
+export const printOutOrder=params=>instance.get('print/printCtrl/printOutgoingGoodsOrder',{params})
 
 
 /* 报表管理-门店报表 */
@@ -300,6 +331,18 @@ export const getMaterialReturnExp=params=>instance.get('report/logisticsReportCt
 export const getStoreScrapExp=params=>instance.get('report/logisticsReportCtrl/storeScrapOrderReportExp',{params})
 //原料废弃报表
 export const getMaterialScrapExp=params=>instance.get('report/logisticsReportCtrl/storeScrapOrderMaterialReportExp',{params})
+//仓库废弃
+export const getLogWarehouseScrap=params=>instance.get('report/logisticsReportCtrl/warehouseScrapOrderReport',{params})
+//仓库废弃报表
+export const getLogWarehouseScrapExp=params=>instance.get('report/logisticsReportCtrl/warehouseScrapOrderReport',{params})
+//仓库原料废弃
+export const getLogWareMaterialhouseScrap=params=>instance.get('report/logisticsReportCtrl/warehouseScrapOrderMaterialReport',{params})
+//仓库原料废弃报表
+export const getLogWareMaterialhouseScrapExp=params=>instance.get('report/logisticsReportCtrl/warehouseScrapOrderMaterialReportExp',{params})
+//仓库统计-仓库废弃
+export const getWarehouseScrap=params=>instance.get('report/warehouseReportCtrl/warehouseScrapOrderReport',{params})
+//仓库原料废弃报表
+export const getWarehouseScrapExp=params=>instance.get('report/warehouseReportCtrl/warehouseScrapOrderReportExp',{params})
 
 
 /* 报表管理-采购报表 */

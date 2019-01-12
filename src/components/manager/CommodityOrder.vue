@@ -19,10 +19,11 @@
               <template>
                 <el-upload
                   class="upload-demo"
-                  action="http://59.110.152.54:8200/mgr/works/pc/orderCtrl/createProductOrderExp"
+                  action="/mgr/works/pc/orderCtrl/createProductOrderExp"
                   :show-file-list="false"
                   :on-success="handleAvatarSuccess"
                   :on-error="handleAvatarFail"
+                  accept=".xlsx,.xls"
                   > 
                   <span size="small">点击上传</span>
                 </el-upload>
@@ -137,12 +138,12 @@ export default {
         keyword: "",
         handle_id: ""
       },
-      beginTime: "",
-      endTime: "",
+      beginTime: new Date(),
+      endTime: new Date(new Date().getTime() + 3*24*60*60*1000),
       total: 1,
       list: [],
       curPageIndex: 1,
-      isShow: !0,
+      isShow: !0, 
       filterText: "",
       tree: "",
       defaultProps: {
@@ -250,10 +251,17 @@ export default {
     },
     //文件上传成功
     handleAvatarSuccess(res, file) {
-      this.$message({
-        message: "上传成功！",
-        type: "success"
-      });
+      if (res.code == 1) {
+        this.$message({
+          message: "上传成功！",
+          type: "success"
+        });
+      } else if (res.code == 0) {
+        const h = this.$createElement;
+        this.$alert(`<span>上传失败，请下载文件查看原因：<a href=${res.data.down_url}>${res.data.down_url}</a></span>`, '上传失败', {
+          dangerouslyUseHTMLString: true
+        });
+      }
     },
     //文件上传失败
     handleAvatarFail(err, file, fileList){ 

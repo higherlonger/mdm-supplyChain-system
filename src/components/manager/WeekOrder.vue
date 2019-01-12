@@ -32,7 +32,7 @@
         :props="defaultProps">
         </el-tree>
         
-      </div>
+      </div> 
       <!-- 表格 -->
         <span class="timeSel">订货日期</span>
         <el-date-picker
@@ -107,12 +107,12 @@ export default {
   data() {
     return {
       search: {
-        state: "",
+        state: "", 
         keyword: "",
         handle_id: ""
       },
-      beginTime: "",
-      endTime: "",
+      beginTime: new Date(),
+      endTime:new Date(new Date().getTime() + 7*24*60*60*1000),
       total: 1,
       list: [],
       curPageIndex: 1,
@@ -135,7 +135,10 @@ export default {
   },
   computed: {
     ...mapState("stateChange", ["btnLoading"]),
-    ...mapState("dict", ["weekTree"])
+    ...mapState("dict", ["weekTree"]),
+    // endTime() {
+    //   return this.getNextDate(this.beginTime, 7);
+    // }
   },
   methods: {
     ...mapActions("dict", ["getWeekTree"]),
@@ -144,7 +147,7 @@ export default {
       let formatData = {
         order_type: "day",
         order_item: this.tableData,
-        order_date: this.beginTime, 
+        order_date: this.beginTime,
         arrive_date: this.endTime
       };
       addData({
@@ -154,10 +157,10 @@ export default {
         returnType: 1
       }).then(item => {
         if (item.code == 1) {
-          this.tableData=[];
+          this.tableData = [];
           this.$refs.tree.setCheckedKeys([]);
-          this.beginTime="";
-          this.endTime="";
+          this.beginTime = "";
+          this.endTime = "";
           this.$message({
             message: "订货成功！",
             type: "success"
@@ -211,21 +214,34 @@ export default {
       return false;
     },
     //根据条件搜素
-    searchHandle(val) {}
+    searchHandle(val) {},
+    //计算后一天
+    getNextDate(date, day) {
+      var dd = new Date(date);
+      dd.setDate(dd.getDate() + day);
+      var y = dd.getFullYear();
+      var m =
+        dd.getMonth() + 1 < 10 ? "0" + (dd.getMonth() + 1) : dd.getMonth() + 1;
+      var d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate();
+      return y + "-" + m + "-" + d;
+    }
   },
   created() {
     this.getWeekTree();
     this.$alert("订货前请先盘点库存，否则会影响订货数据！", "提示", {
       confirmButtonText: "确定",
-      callback: action => {
-      }
+      callback: action => {}
     });
   },
   watch: {
     filterText(val) {
       this.$refs.tree.filter(val);
+    },
+    beginTime(){
+      this.endTime=this.getNextDate(this.beginTime, 7);
     }
   },
+
   mounted() {
     this.$refs.table.$el.addEventListener("keyup", this.keyUpHandle, false);
   },

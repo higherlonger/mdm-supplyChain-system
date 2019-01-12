@@ -43,6 +43,29 @@
                 :value="item.value">
                 </el-option>
             </el-select>
+        <div class="search-title fl">开始时间：</div>
+              <el-date-picker
+                v-model="search.beginTime"
+                @change="searchHandle"
+                type="date"
+                class="fl"
+                style="width:160px" 
+                size="small"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期">
+              </el-date-picker>
+          <div class="search-title fl" style="margin-left:10px">结束时间：</div>
+              <el-date-picker
+                v-model="search.endTime" 
+                value-format="yyyy-MM-dd"
+                @change="searchHandle"
+                type="date"
+                class="fl"
+                style="width:160px"
+                size="small"
+                placeholder="选择日期">
+              </el-date-picker>
+          
             <el-button class="fl" style="margin-left: 10px;" size="small"
                 @click.stop="searchHandle('all')">
                 全部
@@ -229,7 +252,9 @@ export default {
     return {
       search: {
         keyword: "",
-        order_state: ""
+        order_state: "",
+        beginTime:"",
+        endTime:""
       },
       total: 1,
       list: [],
@@ -268,6 +293,8 @@ export default {
       if (val == "all") {
         this.search.keyword = "";
         this.search.order_state = "";
+        this.search.beginTime="";
+        this.search.endTime="";
       }
       getList({
         requestUrl: getDiscardList,

@@ -22,7 +22,7 @@
         </el-form-item>
         <el-form-item label="备注" prop="remark">
             <el-input class="textarea leftItv"
-                    type="text"
+                    type="textarea"
                     placeholder="请输入备注"
                     v-model="infoList.remark">
                     </el-input>

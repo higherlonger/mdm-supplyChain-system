@@ -18,15 +18,17 @@
             prefix-icon="el-icon-search"
             class="fl"
             size="small"
+            @keyup.enter.native="searchHandle"
             style="width:220px;margin-right:10px;"
             v-model="search.keyword">
-        </el-input>
+        </el-input> 
         <div class="search-title fl">用户状态：</div>
             <el-select 
                 class="fl"
                 size="small" 
                 clearable
                 v-model="search.state"
+                @change="searchHandle"
                 style="width:160px;margin-right:10px;"
                 >
                 <el-option
@@ -36,7 +38,7 @@
                 :value="item.value">
                 </el-option>
             </el-select>
-            <el-button class="fl" style="margin-left: 10px;" size="small" >
+            <el-button class="fl" style="margin-left: 10px;" size="small" @click="searchHandle('all')">
                 全部
             </el-button>
     </div>
@@ -133,12 +135,12 @@
 </template>
 
 <script>
-import { getUserList,stopUser } from "../../api";
+import { getUserList, stopUser } from "../../api";
 import { mapState, mapActions } from "vuex";
 import AppDialog from "../common/AppDialog.vue";
 import SysShow from "./User_show.vue";
 import SysEdit from "./User_edit.vue";
-import SysAdd from "./User_add.vue"
+import SysAdd from "./User_add.vue";
 export default {
   name: "sys",
   data() {
@@ -148,30 +150,38 @@ export default {
         state: ""
       },
       list: [],
-      dialog:{
-          seeVisible:!1,
-          editVisible:!1,
-          addVisible:!1
+      dialog: {
+        seeVisible: !1,
+        editVisible: !1,
+        addVisible: !1
       },
       currPageIndex: 1,
       total: 1,
       pageSize: 10,
-      recordId:"",
-      info:""
+      recordId: "",
+      info: ""
     };
   },
-  components:{
-     SysShow,
-     SysEdit,
-     SysAdd,
-     AppDialog
+  components: {
+    SysShow,
+    SysEdit,
+    SysAdd,
+    AppDialog
   },
-  computed:{
-      ...mapState('dict',['store_state']),
-      ...mapState('stateChange',['btnLoading'])
+  computed: {
+    ...mapState("dict", ["store_state"]),
+    ...mapState("stateChange", ["btnLoading"])
   },
   methods: {
-      ...mapActions('dict',['getStoreState']),
+    ...mapActions("dict", ["getStoreState"]),
+    //根据条件搜素
+    searchHandle(val) {
+      if (val == "all") {
+        this.search.keyword = "";
+        this.search.state = "";
+      }
+      this.getList();
+    },
     //获取用户列表
     async getList(currPage, callback) {
       try {
@@ -197,54 +207,54 @@ export default {
       this.getList(this.currPageIndex);
     },
     //操作控制
-    recordHandle(_row,text){
-        this.recordId=_row.id;
-        this.info=_row;
-        this.dialog[text]=!0;
+    recordHandle(_row, text) {
+      this.recordId = _row.id;
+      this.info = _row;
+      this.dialog[text] = !0;
     },
-    topHandle(text){
-        this.dialog[text]=!0;
+    topHandle(text) {
+      this.dialog[text] = !0;
     },
-    reloadData(res){
-        if(res=='reload'){
-            for(let attr in this.dialog){
-                this.dialog[attr]=!1;
-            }
+    reloadData(res) {
+      if (res == "reload") {
+        for (let attr in this.dialog) {
+          this.dialog[attr] = !1;
         }
-        this.getList()
+      }
+      this.getList();
     },
     //停用、启用
-    async stopUser(_id,state){
-        let val=state==1? 0:1;
-        let text=state==1? '您确定停用此用户吗？':'您确定启用此用户吗？';
-        this.$confirm(text, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-           this.okStop(_id,val);
-        }) 
+    async stopUser(_id, state) {
+      let val = state == 1 ? 0 : 1;
+      let text = state == 1 ? "您确定停用此用户吗？" : "您确定启用此用户吗？";
+      this.$confirm(text, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        this.okStop(_id, val);
+      });
     },
-    async okStop(_id,val){
-        try {
-            const response=await stopUser({id:_id,state:val});
-            if(response.code==1){
-                this.$message({
-                    message: '操作成功！',
-                    type: 'success'
-                });
-                this.getList()
-            }else{
-                this.$message.error('操作失败！');
-            }
-        } catch (error) {
-            console.log(error)
+    async okStop(_id, val) {
+      try {
+        const response = await stopUser({ id: _id, state: val });
+        if (response.code == 1) {
+          this.$message({
+            message: "操作成功！",
+            type: "success"
+          });
+          this.getList();
+        } else {
+          this.$message.error("操作失败！");
         }
+      } catch (error) {
+        console.log(error);
+      }
     }
   },
   created() {
     this.getList();
-    this.getStoreState()
+    this.getStoreState();
   }
 };
 </script>

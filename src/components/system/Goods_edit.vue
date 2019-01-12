@@ -13,7 +13,7 @@
             v-model="infoList.name">
             </el-input>
         </el-form-item>   
-        <el-form-item label="分类编码" prop="num">
+        <el-form-item label="商品编号" prop="num">
                 <el-input class="textarea leftItv"
                 type="text"
                 placeholder="请输入分类编码"
@@ -22,7 +22,7 @@
         </el-form-item>
         <el-form-item label="备注" prop="remark">
             <el-input class="textarea leftItv"
-                    type="text"
+                    type="textarea"
                     placeholder="请输入备注"
                     v-model="infoList.remark">
                     </el-input>
@@ -38,7 +38,7 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import { editData } from "../../common";
-import { editClass } from "../../api";
+import { editCommodity } from "../../api";
 export default {
   name: "edit-class",
   props: ["info"],
@@ -77,8 +77,14 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           editData({
-            requestUrl: editClass,
-            params: { ...this.infoList, id: this.info.id }
+            requestUrl: editCommodity,
+            params: { 
+              catalog_id:this.infoList.catalog_id,
+              id: this.info.id,
+              name:this.infoList.name,
+              num:this.infoList.num,
+              remark:this.infoList.rem
+            } 
           })
             .then(item => {
               this.$emit("reloadEvent", "reload");

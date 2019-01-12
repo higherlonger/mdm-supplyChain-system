@@ -82,8 +82,8 @@
             label="单位">
         </el-table-column>
         <el-table-column
-            prop="attribute"
-            label="规格">
+            prop="batch_num"
+            label="批号">
         </el-table-column>
         <el-table-column
             prop="quantity"
@@ -390,14 +390,6 @@ export default {
         return !item.children;
       });
       this.tableData = filterVal;
-      this.filterData(filterVal);
-    },
-    filterData(val) {
-      if (val[0]&&!val[0].hasOwnProperty("quantity")) {
-        for (let i = 0; i < val.length; i++) {
-          val[i]["quantity"] = 0;
-        }
-      }
     },
     handleNodeClick() {
       this.getCheckedNodes();
@@ -474,6 +466,7 @@ export default {
         this.info.purchase_type=item.list.purchase_type;
         this.info.city=item.list.city;
         this.info.remark=item.list.remark;
+        this.info.to_user_id=item.list.to_user_id;
       });
     }
   },

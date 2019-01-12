@@ -107,8 +107,8 @@
             label="状态"
             width="100">
             <template slot-scope="scope">
-                <el-tag size="medium" v-if="scope.row.state==1">启用</el-tag>
-                <el-tag size="medium" v-else type="danger">停用</el-tag>
+                <el-tag size="medium" v-if="scope.row.state==1">{{scope.row.state_text}}</el-tag>
+                <el-tag size="medium" v-else type="danger">{{scope.row.state_text}}</el-tag>
             </template>
             </el-table-column>
             <el-table-column label="操作" width="250">
@@ -228,7 +228,8 @@ export default {
           requestUrl: getAddressList,
           params: { ...this.search, pageSize: this.pageSize }
         }).then(item => {
-          this.list = item;
+          this.list = item.list;
+          this.total = item.total;
         });
       }
     },

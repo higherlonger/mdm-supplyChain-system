@@ -25,14 +25,9 @@
                 <el-option v-for="item in cityList" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
         </el-form-item> 
-        <el-form-item label="仓库状态" prop="state">
-            <el-select v-model="form.state" placeholder="请选择状态" class="leftItv">
-                <el-option v-for="item in store_state" :key="item.value" :label="item.name" :value="item.value"></el-option>
-            </el-select>
-        </el-form-item> 
         <el-form-item label="备注" prop="remark">
             <el-input class="textarea leftItv"
-            type="text"
+            type="textarea"
             placeholder="请输入备注"
             v-model="form.remark">
             </el-input>

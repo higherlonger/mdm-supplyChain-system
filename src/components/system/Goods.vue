@@ -13,6 +13,8 @@
             @click="goOut">后退</el-button>
         <el-button class="fr" size="small" icon="el-icon-plus" type="primary" plain v-show="pageVisible.formula"
             @click="okToEdit">确定</el-button>
+        <el-button class="fr" size="small" icon="el-icon-back"  plain v-show="pageVisible.formula"
+            @click="cancel">返回</el-button>
     </nav>
 
     <!-- 商品回显 --> 
@@ -24,6 +26,7 @@
                   class="fl"
                   size="small" 
                   v-model="search.state"
+                  clearable  
                   @change="searchHandle"
                   style="width:160px;margin-right:10px;"
                   >
@@ -305,7 +308,7 @@
     
     <!-- 弹窗 -->
     <app-dialog title="新增商品" :visible.sync="dialog.addVisible" top="0vh" customClass="customClass">
-      <add-goods :state="state" @reloadEvent="reloadGetData"></add-goods>
+      <add-goods  @reloadEvent="reloadGetData"></add-goods>
     </app-dialog>
     <app-dialog title="修改分类" :visible.sync="dialog.editVisible">
       <edit-class :info="info" @reloadEvent="reloadGetData"></edit-class>
@@ -320,7 +323,7 @@
 import { mapState, mapActions } from "vuex";
 import { getListPage, stopInfo } from "../../common";
 import { addData } from "../../common";
-import { getOnlyGoodsTree, getFormulaById, editBom } from "../../api";
+import { getOnlyGoodsTree, getFormulaById, editBom,getCagTree } from "../../api";
 import AppDialog from "../common/AppDialog.vue";
 import AddGoods from "./Goods_add.vue";
 import EditClass from "./Goods_edit.vue";
@@ -432,7 +435,7 @@ export default {
           }
         })
         .catch(error => {
-          this.$message.error("新增失败");
+          this.$message.error("修改失败");
         });
     },
     //配方删除
@@ -516,26 +519,21 @@ export default {
     reloadGetData(res) {
       if (res == "reload") {
         for (let attr in this.dialog) {
-          this.dialog[attr] = !1;
+          this.dialog[attr] = !1; 
         }
-        if (this.state == 0) {
-          getListPage({
-            requestUrl: getCagTree,
-            params: { type: "material" }
-          }).then(item => {
-            this.list = item.list.children;
-            this.mat = item.list.children;
-          });
-        } else {
-          getListPage({
-            requestUrl: getCagTree,
-            params: { type: "product" }
-          }).then(item => {
-            this.list = item.list.children;
-            this.pro = item.list.children;
-          });
-        }
+        getListPage({
+      requestUrl: getOnlyGoodsTree,
+      params: { ...this.search }
+    }).then(item => {
+      this.list = item.list;
+    });
       }
+    },
+    cancel(){
+      for (let attr in this.pageVisible){
+        this.pageVisible[attr]=!1;
+      }
+      this.pageVisible['index']=!0;
     },
     //删除分类
     delInfo(_id) {

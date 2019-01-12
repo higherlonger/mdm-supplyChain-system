@@ -1,11 +1,11 @@
-  <template>
+   <template> 
 <div>
     <!-- 导航栏 -->
     <nav class="app-location-wrapper">
         <el-breadcrumb separator="/" class="fl">
             <el-breadcrumb-item :to="{ path: '/sys_setting' }">物流管理</el-breadcrumb-item>
             <el-breadcrumb-item>订单管理</el-breadcrumb-item>
-            <el-breadcrumb-item>门店废弃单</el-breadcrumb-item>
+            <el-breadcrumb-item>仓库废弃</el-breadcrumb-item>
         </el-breadcrumb>
         <el-button class="fr" size="small" v-if="buttonVisible.return" icon="el-icon-close" type="danger" plain v-show="!isShow"  style="margin-right:10px" 
             @click="handle('return')">关闭</el-button>
@@ -49,17 +49,17 @@
                     style="width:220px;margin-right:10px;"
                     >
                   </el-date-picker>
-              <div class="search-title fl">选择门店：</div>
+              <div class="search-title fl">选择仓库：</div>
                 <el-select 
                     class="fl"
                     size="small" 
                     clearable
-                    v-model="search.store_id"
+                    v-model="search.warehouse_id"
                     @change="searchHandle"
                     style="width:160px;margin-right:10px;"
                     >
                     <el-option
-                    v-for="item in storeList"
+                    v-for="item in wareHouse" 
                     :key="item.value"
                     :label="item.name"
                     :value="item.value">
@@ -72,6 +72,7 @@
                     clearable
                     v-model="search.order_state"
                     @change="searchHandle"
+                    style="width:160px;margin-right:10px;"
                     >
                     <el-option
                     v-for="item in returnOrderState"
@@ -99,25 +100,16 @@
                   prop="num"
                   label="编号"
                   >
-                  <template slot-scope="scope">
-                    <span :style="{color: scope.row.store_color}">{{ scope.row.num }}</span>
-                  </template>
                   </el-table-column>
                   <el-table-column
-                  prop="store_name" 
-                  label="门店名称"
+                  prop="warehouse_name" 
+                  label="仓库名称" 
                   >
-                  <template slot-scope="scope">
-                    <span :style="{color: scope.row.store_color}">{{ scope.row.store_name }}</span>
-                  </template>
                   </el-table-column>
                   <el-table-column
-                  prop="create_date"
-                  label="订单时间"
+                  prop="scrap_date"
+                  label="废弃时间"
                   >
-                  <template slot-scope="scope">
-                    <span :style="{color: scope.row.store_color}">{{ scope.row.create_date }}</span>
-                  </template>
                   </el-table-column>
                   <el-table-column
                   prop="order_state_text"
@@ -246,7 +238,7 @@
 
 <script>
 import {
-  getDiscardList,
+  getWarehouseDiscardList,
   getLogisticsById,
   discardLogistics,
   discardFinishLogistics,
@@ -261,7 +253,7 @@ export default {
       search: {
         keyword: "",
         order_state: "",
-        store_id: "",
+        warehouse_id: "",
         from_date: "",
         to_date: ""
       },
@@ -277,24 +269,24 @@ export default {
       productDetail: [],
       selected: [],
       row: {},
-      buttonVisible: {
-        receive: !1,
-        finish: !1,
-        return: !0
+      buttonVisible:{
+          receive:!1,
+          finish:!1,
+          return:!0
       }
     };
   },
   components: {},
   computed: {
     ...mapState("stateChange", ["btnLoading"]),
-    ...mapState("dict", ["storeList", "returnOrderState"])
+    ...mapState("dict", ["wareHouse", "returnOrderState"])
   },
   methods: {
-    ...mapActions("dict", ["getStoreList", "getReturnOrderState"]),
+    ...mapActions("dict", ["getWareHouse","getReturnOrderState"]),
     handleCurrentChange(val) {
       this.curPageIndex = val;
       getList({
-        requestUrl: getDiscardList,
+        requestUrl: getWarehouseDiscardList,
         params: {
           ...this.search,
           pageSize: this.pageSize
@@ -309,46 +301,42 @@ export default {
     },
     //查看
     okRev(_row) {
-      if (_row.order_state == "unaccepted") {
-        this.buttonVisible.receive = !0;
-        this.buttonVisible.finish = !1;
-        this.buttonVisible.return = !1;
-      } else if (_row.order_state == "accepted") {
-        this.buttonVisible.receive = !1;
-        this.buttonVisible.finish = !0;
-      } else {
-        this.buttonVisible.receive = !1;
-        this.buttonVisible.finish = !1;
+      if(_row.order_state=='unaccepted'){
+          this.buttonVisible.receive=!0;
+          this.buttonVisible.finish=!1;
+          this.buttonVisible.return=!1
+      }else if(_row.order_state=='accepted'){
+          this.buttonVisible.receive=!1;
+          this.buttonVisible.finish=!0;
+      }else {
+          this.buttonVisible.receive=!1;
+          this.buttonVisible.finish=!1;
       }
-      if (_row.order_state == "returned" || _row.order_state == "finished") {
-        this.buttonVisible.return = !1;
+      if(_row.order_state=='returned'||_row.order_state=='finished'){
+          this.buttonVisible.return=!1
       }
       this.row = _row;
-      this.materialDetail = _row.order_item.material_list;
-      this.productDetail = _row.order_item.product_list;
-      this.isShow = !this.isShow;
+        this.materialDetail = _row.order_item.material_list;
+        this.productDetail = _row.order_item.product_list;
+        this.isShow = !this.isShow;
+    
     },
     //根据条件搜素
     searchHandle(val) {
       if (val == "all") {
         this.search.keyword = "";
-        this.search.order_state = "";
-        this.search.store_id = "";
-        this.search.from_date = "";
-        this.timeSlot = "";
-        this.search.to_date = "";
+        this.search.order_state= "";
+        this.search.warehouse_id= "";
+        this.search.from_date= "";
+        this.timeSlot=""
+        this.search.to_date= "";
       }
       if (val == "time") {
-        if (this.timeSlot == null) {
-          this.search.from_date = "";
-          this.search.to_date = "";
-        } else {
-          this.search.from_date = this.timeSlot[0];
-          this.search.to_date = this.timeSlot[1];
-        }
+        this.search.from_date = this.timeSlot[0];
+        this.search.to_date = this.timeSlot[1];
       }
       getList({
-        requestUrl: getDiscardList,
+        requestUrl: getWarehouseDiscardList,
         params: {
           ...this.search,
           pageSize: this.pageSize
@@ -358,14 +346,14 @@ export default {
         this.list = item.list;
       });
     },
-    //完成
+    //完成 
     handle(val) {
-      let postUrl;
-      if (val == "finish") {
-        postUrl = discardFinishLogistics;
-      } else {
-        postUrl = discardReturnLogistics;
-      }
+        let postUrl;
+        if(val=='finish'){
+            postUrl=discardFinishLogistics
+        }else{
+            postUrl=discardReturnLogistics
+        }
       let obj = {
         order_item: this.row.order_item,
         id: this.row.id
@@ -382,7 +370,7 @@ export default {
           });
           this.isShow = !this.isShow;
           getList({
-            requestUrl: getDiscardList,
+            requestUrl: getWarehouseDiscardList,
             params: {
               ...this.search,
               pageSize: this.pageSize
@@ -392,7 +380,7 @@ export default {
             this.list = item.list;
           });
         }
-      });
+      }); 
     },
     //后退
     goPre() {
@@ -416,7 +404,7 @@ export default {
           });
           this.isShow = !this.isShow;
           getList({
-            requestUrl: getDiscardList,
+            requestUrl: getWarehouseDiscardList,
             params: {
               ...this.search,
               pageSize: this.pageSize
@@ -430,11 +418,11 @@ export default {
     }
   },
   created() {
-    this.getStoreList();
-    this.getReturnOrderState();
+      this.getWareHouse();
+      this.getReturnOrderState()
     //获取列表
     getList({
-      requestUrl: getDiscardList,
+      requestUrl: getWarehouseDiscardList,
       params: {
         ...this.search,
         pageSize: this.pageSize

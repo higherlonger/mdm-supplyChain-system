@@ -4,17 +4,14 @@
             <el-form-item label="用户名" prop="username">
                 <span class="form-record-show">{{ form.username }}</span>
             </el-form-item> 
-            <el-form-item label="密码" prop="password">
-                <span class="form-record-show">{{ form.password }}</span>
-            </el-form-item>
             <el-form-item label="昵称" prop="nickname">
                 <span class="form-record-show">{{ form.nickname }}</span>
             </el-form-item>
             <el-form-item label="电话" prop="phone">
                 <span class="form-record-show">{{ form.phone }}</span>
             </el-form-item>
-            <el-form-item label="角色" prop="role">
-                <span class="form-record-show">{{ form.role }}</span>
+            <el-form-item label="角色" prop="role_text">
+                <span class="form-record-show">{{ form.role_text }}</span>
             </el-form-item>
             <el-form-item label="创建时间" prop=" updatedate">
                 <span class="form-record-show">{{ form. updatedate }}</span>
